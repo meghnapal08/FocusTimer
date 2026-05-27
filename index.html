@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Focus">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>Focus Timer</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap');
+
+  :root {
+    --bg1: #f5ede0; --bg2: #e8d5b7;
+    --text: rgba(40,28,16,0.88);
+    --muted: rgba(40,28,16,0.45);
+    --card: rgba(255,255,255,0.38);
+    --card-b: rgba(0,0,0,0.10);
+    --btn: rgba(0,0,0,0.08);
+    --btn-b: rgba(0,0,0,0.14);
+    --work: #b05c30;
+    --brk: #2a7850;
+    --accent: #7a4a28;
+    --input-bg: rgba(0,0,0,0.08);
+    --input-text: rgba(40,28,16,0.88);
+    --fill: rgba(0,0,0,0.42);
+    --track: rgba(0,0,0,0.12);
+  }
+  [data-dark="true"] {
+    --text: rgba(238,228,210,0.92);
+    --muted: rgba(238,228,210,0.42);
+    --card: rgba(0,0,0,0.28);
+    --card-b: rgba(255,255,255,0.10);
+    --btn: rgba(255,255,255,0.10);
+    --btn-b: rgba(255,255,255,0.18);
+    --work: #ffa070;
+    --brk: #72e0a8;
+    --accent: #ffc090;
+    --input-bg: rgba(255,255,255,0.12);
+    --input-text: rgba(238,228,210,0.92);
+    --fill: rgba(255,255,255,0.55);
+    --track: rgba(255,255,255,0.12);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+  html, body {
+    height: 100%; width: 100%;
+    font-family: 'DM Sans', sans-serif;
+    overflow: hidden;
+  }
+
+  #app {
+    min-height: 100vh;
+    min-height: -webkit-fill-available;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: env(safe-area-inset-top, 20px) 1.5rem env(safe-area-inset-bottom, 20px);
+    transition: background 0.5s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* --- THEMES --- */
+  .t-sand    { background: linear-gradient(160deg,#f5ede0,#e8d5b7,#f0e0c8); }
+  .t-sage    { background: linear-gradient(160deg,#d4e8d0,#b8d4b2,#cce0c8); }
+  .t-ocean   { background: linear-gradient(160deg,#d0e8f4,#b0d4ec,#c8e0f0); }
+  .t-rose    { background: linear-gradient(160deg,#f4d0d8,#edb8c4,#f0c8d0); }
+  .t-slate   { background: linear-gradient(160deg,#2c3e50,#34495e,#2a3a4a); }
+  .t-dusk    { background: linear-gradient(160deg,#e8d5f0,#d4b8e8,#e0ccf4); }
+  .t-night   { background: linear-gradient(160deg,#1a1a2e,#16213e,#0f3060); }
+  .t-forest  { background: linear-gradient(160deg,#1a2e1a,#1e3a1e,#243024); }
+
+  /* --- TOP BAR --- */
+  .top-bar {
+    position: absolute;
+    top: env(safe-area-inset-top, 16px);
+    top: max(env(safe-area-inset-top, 16px), 16px);
+    right: 1.25rem;
+    display: flex;
+    gap: 10px;
+    z-index: 5;
+  }
+  .icon-btn {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    background: var(--btn);
+    border: 0.5px solid var(--btn-b);
+    color: var(--text);
+    font-size: 18px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    transition: transform 0.12s, background 0.15s;
+  }
+  .icon-btn:active { transform: scale(0.91); }
+
+  /* --- MAIN TIMER --- */
+  .main { display: flex; flex-direction: column; align-items: center; text-align: center; }
+
+  .phase-label {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.78rem;
+    font-weight: 500;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    margin-bottom: 0.3rem;
+    transition: color 0.4s;
+  }
+
+  .timer {
+    font-family: 'DM Mono', monospace;
+    font-size: clamp(4.5rem, 22vw, 6.5rem);
+    font-weight: 500;
+    line-height: 1;
+    letter-spacing: -3px;
+    color: var(--text);
+    margin: 0.1rem 0 0.3rem;
+  }
+
+  .session-note {
+    font-size: 0.8rem;
+    color: var(--muted);
+    margin-bottom: 1.4rem;
+  }
+
+  .progress-wrap {
+    width: min(280px, 80vw);
+    height: 3px;
+    background: var(--track);
+    border-radius: 2px;
+    overflow: hidden;
+    margin-bottom: 1.6rem;
+  }
+  .progress-bar {
+    height: 100%;
+    border-radius: 2px;
+    transition: width 0.6s linear, background 0.4s;
+  }
+
+  /* --- CONTROLS --- */
+  .controls { display: flex; align-items: center; gap: 16px; margin-bottom: 1.8rem; }
+  .ctrl-btn {
+    width: 52px; height: 52px;
+    border-radius: 50%;
+    background: var(--btn);
+    border: 0.5px solid var(--btn-b);
+    color: var(--text);
+    font-size: 20px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    transition: transform 0.12s, opacity 0.2s;
+  }
+  .ctrl-btn:active { transform: scale(0.91); }
+  .ctrl-btn:disabled, .ctrl-btn[disabled] { opacity: 0.28; pointer-events: none; }
+  .play-btn { width: 70px; height: 70px; font-size: 26px; }
+
+  /* --- SESSION CHIPS --- */
+  .chips { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; max-width: 340px; }
+  .chip {
+    display: flex; flex-direction: column; align-items: center; gap: 3px;
+    padding: 7px 9px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: transform 0.15s, background 0.2s;
+    min-width: 44px;
+  }
+  .chip:active { transform: scale(0.93); }
+  .chip.active { transform: scale(1.06); }
+  .chip.done { opacity: 0.35; }
+  .chip-dot { width: 8px; height: 8px; }
+  .chip-dot.work { border-radius: 2px; }
+  .chip-dot.brk  { border-radius: 50%; }
+  .chip-dur { font-family: 'DM Mono', monospace; font-size: 0.72rem; color: var(--text); }
+  .chip-lbl { font-size: 0.58rem; letter-spacing: 0.07em; text-transform: uppercase; color: var(--muted); }
+
+  /* --- FINISHED --- */
+  .finished { display: flex; flex-direction: column; align-items: center; padding: 1rem; }
+  .finished-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 2.2rem;
+    color: var(--text);
+    margin-bottom: 0.5rem;
+    text-align: center;
+  }
+  .finished-sub { font-size: 0.9rem; color: var(--muted); margin-bottom: 2rem; text-align: center; }
+  .text-btn {
+    padding: 12px 30px;
+    border-radius: 24px;
+    background: var(--btn);
+    border: 0.5px solid var(--btn-b);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: transform 0.12s;
+  }
+  .text-btn:active { transform: scale(0.95); }
+
+  /* --- PANEL OVERLAY --- */
+  .panel-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.4);
+    z-index: 20;
+    display: flex;
+    align-items: flex-end;
+    animation: fadeIn 0.2s ease;
+  }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+  .panel {
+    width: 100%;
+    max-height: 85vh;
+    border-radius: 20px 20px 0 0;
+    padding: 1.5rem 1.25rem calc(env(safe-area-inset-bottom, 16px) + 1rem);
+    overflow-y: auto;
+    animation: slideUp 0.25s ease;
+  }
+  @keyframes slideUp { from { transform: translateY(40px); opacity:0; } to { transform: translateY(0); opacity:1; } }
+
+  .panel-handle {
+    width: 38px; height: 4px;
+    background: var(--track);
+    border-radius: 2px;
+    margin: 0 auto 1.2rem;
+  }
+  .panel-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.4rem;
+    color: var(--text);
+    margin-bottom: 1rem;
+  }
+
+  /* Edit panel */
+  .edit-group { margin-bottom: 0.5rem; }
+  .edit-row {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 14px;
+    border-radius: 10px;
+    background: var(--card);
+    border: 0.5px solid var(--card-b);
+    margin-bottom: 6px;
+  }
+  .edit-row label { flex: 1; font-size: 0.85rem; color: var(--text); }
+  .edit-input {
+    width: 60px; padding: 6px 8px;
+    border-radius: 7px;
+    background: var(--input-bg);
+    color: var(--input-text);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.95rem;
+    text-align: center;
+    border: none; outline: none;
+  }
+  .edit-unit { font-size: 0.75rem; color: var(--muted); }
+  .save-btn {
+    width: 100%; padding: 14px;
+    border-radius: 14px;
+    background: var(--accent);
+    color: #fff;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1rem;
+    font-weight: 500;
+    border: none;
+    cursor: pointer;
+    margin-top: 1rem;
+    transition: transform 0.12s, opacity 0.15s;
+  }
+  .save-btn:active { transform: scale(0.97); opacity: 0.9; }
+
+  /* BG picker */
+  .bg-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 1.2rem; }
+  .bg-swatch {
+    aspect-ratio: 1;
+    border-radius: 10px;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: transform 0.15s, border-color 0.15s;
+    display: flex; align-items: flex-end; justify-content: center;
+    padding-bottom: 5px;
+    font-size: 0.6rem;
+    color: rgba(255,255,255,0.75);
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+  .bg-swatch.sel { border-color: rgba(255,255,255,0.75); transform: scale(1.06); }
+  .bg-swatch:active { transform: scale(0.95); }
+</style>
+</head>
+<body>
+
+<div id="app" class="t-sand">
+  <div class="top-bar">
+    <button class="icon-btn" id="btn-edit" aria-label="Edit timers">✏️</button>
+    <button class="icon-btn" id="btn-bg"   aria-label="Change background">🎨</button>
+  </div>
+  <div id="main-view" class="main"></div>
+  <div id="finished-view" class="finished" style="display:none"></div>
+</div>
+
+<script>
+// ── STATE ──────────────────────────────────────────────────────────────
+const THEMES = [
+  { id:'sand',  cls:'t-sand',   dark:false, bg:'linear-gradient(135deg,#f5ede0,#e8d5b7)', lbl:'Sand'   },
+  { id:'sage',  cls:'t-sage',   dark:false, bg:'linear-gradient(135deg,#d4e8d0,#b8d4b2)', lbl:'Sage'   },
+  { id:'ocean', cls:'t-ocean',  dark:false, bg:'linear-gradient(135deg,#d0e8f4,#b0d4ec)', lbl:'Ocean'  },
+  { id:'rose',  cls:'t-rose',   dark:false, bg:'linear-gradient(135deg,#f4d0d8,#edb8c4)', lbl:'Rose'   },
+  { id:'slate', cls:'t-slate',  dark:true,  bg:'linear-gradient(135deg,#2c3e50,#34495e)', lbl:'Slate'  },
+  { id:'dusk',  cls:'t-dusk',   dark:false, bg:'linear-gradient(135deg,#e8d5f0,#d4b8e8)', lbl:'Dusk'   },
+  { id:'night', cls:'t-night',  dark:true,  bg:'linear-gradient(135deg,#1a1a2e,#0f3060)', lbl:'Night'  },
+  { id:'forest',cls:'t-forest', dark:true,  bg:'linear-gradient(135deg,#1a2e1a,#243024)', lbl:'Forest' },
+];
+
+let workMins  = [50, 40, 30, 20, 10];
+let breakMins = [10, 10, 10, 10];
+let themeId   = 'sand';
+let stepIdx   = 0;
+let secsLeft  = workMins[0] * 60;
+let running   = false;
+let finished  = false;
+let timer     = null;
+
+function buildSeq() {
+  const s = [];
+  workMins.forEach((w, i) => {
+    s.push({ type:'work', mins:w, session:i+1 });
+    if (i < workMins.length - 1) s.push({ type:'break', mins:breakMins[i]||10, session:i+1 });
+  });
+  return s;
+}
+
+// ── AUDIO ──────────────────────────────────────────────────────────────
+function chime() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const isDark = THEMES.find(t=>t.id===themeId)?.dark;
+    [0, 0.18, 0.36].forEach((delay, i) => {
+      const freqs = isDark ? [392,494,587] : [523,659,784];
+      const o = ctx.createOscillator(), g = ctx.createGain();
+      o.connect(g); g.connect(ctx.destination);
+      o.frequency.value = freqs[i]; o.type = 'sine';
+      g.gain.setValueAtTime(0, ctx.currentTime + delay);
+      g.gain.linearRampToValueAtTime(0.2, ctx.currentTime + delay + 0.04);
+      g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + delay + 0.75);
+      o.start(ctx.currentTime + delay);
+      o.stop(ctx.currentTime + delay + 0.8);
+    });
+  } catch(e) {}
+}
+
+// ── RENDER ─────────────────────────────────────────────────────────────
+function render() {
+  const seq  = buildSeq();
+  const step = seq[stepIdx] || seq[seq.length-1];
+  const theme = THEMES.find(t => t.id === themeId);
+  const app  = document.getElementById('app');
+
+  // theme
+  THEMES.forEach(t => app.classList.remove(t.cls));
+  app.classList.add(theme.cls);
+  app.dataset.dark = theme.dark;
+
+  const workColor  = theme.dark ? '#ffa070' : '#b05c30';
+  const breakColor = theme.dark ? '#72e0a8' : '#2a7850';
+
+  if (finished) {
+    document.getElementById('main-view').style.display = 'none';
+    const fv = document.getElementById('finished-view');
+    fv.style.display = 'flex';
+    fv.innerHTML = `
+      <div class="finished-title">All done ✦</div>
+      <div class="finished-sub">You completed all your focus blocks.</div>
+      <button class="text-btn" onclick="restart()">Start over</button>
+    `;
+    return;
+  }
+
+  document.getElementById('finished-view').style.display = 'none';
+  const mv = document.getElementById('main-view');
+  mv.style.display = 'flex';
+
+  const total = step.mins * 60;
+  const pct   = total > 0 ? ((total - secsLeft) / total) * 100 : 100;
+  const color = step.type === 'work' ? workColor : breakColor;
+  const mins  = Math.floor(secsLeft / 60);
+  const secs  = secsLeft % 60;
+  const timeStr = `${String(mins).padStart(2,'0')}:${String(secs).padStart(2,'0')}`;
+  const label = step.type === 'work' ? 'Focus' : 'Break';
+  const note  = step.type === 'work' ? `Block ${step.session} of ${workMins.length}` : 'Rest up';
+
+  // chips
+  const chipsHtml = seq.map((s, i) => {
+    const cls = i === stepIdx ? 'chip active' : i < stepIdx ? 'chip done' : 'chip';
+    const dotCls = s.type === 'work' ? 'chip-dot work' : 'chip-dot brk';
+    const bg = i === stepIdx
+      ? (s.type==='work' ? 'rgba(160,80,40,0.15)' : 'rgba(40,120,80,0.15)') : 'transparent';
+    const dotColor = s.type === 'work' ? workColor : breakColor;
+    return `<div class="${cls}" style="background:${bg}" onclick="goTo(${i})">
+      <div class="${dotCls}" style="background:${dotColor}"></div>
+      <div class="chip-dur">${s.mins}m</div>
+      <div class="chip-lbl">${s.type==='work'?'work':'rest'}</div>
+    </div>`;
+  }).join('');
+
+  mv.innerHTML = `
+    <div class="phase-label" style="color:${color}">${label}</div>
+    <div class="timer">${timeStr}</div>
+    <div class="session-note">${note}</div>
+    <div class="progress-wrap">
+      <div class="progress-bar" style="width:${pct}%;background:${color}"></div>
+    </div>
+    <div class="controls">
+      <button class="ctrl-btn" onclick="skip(-1)" ${stepIdx===0?'disabled':''}
+        aria-label="Previous">⏮</button>
+      <button class="ctrl-btn play-btn" onclick="togglePlay()" aria-label="${running?'Pause':'Play'}">
+        ${running ? '⏸' : '▶'}
+      </button>
+      <button class="ctrl-btn" onclick="skip(1)" ${stepIdx===seq.length-1?'disabled':''}
+        aria-label="Next">⏭</button>
+    </div>
+    <div class="chips">${chipsHtml}</div>
+  `;
+
+  // update page title with time
+  document.title = `${timeStr} — ${label} · Focus Timer`;
+}
+
+// ── CONTROLS ───────────────────────────────────────────────────────────
+function togglePlay() {
+  running = !running;
+  if (running) startTick(); else stopTick();
+  render();
+}
+
+function startTick() {
+  stopTick();
+  timer = setInterval(() => {
+    if (secsLeft <= 1) {
+      secsLeft = 0;
+      stopTick();
+      running = false;
+      chime();
+      const seq = buildSeq();
+      const next = stepIdx + 1;
+      if (next >= seq.length) {
+        finished = true;
+        render();
+      } else {
+        setTimeout(() => { stepIdx = next; secsLeft = seq[next].mins * 60; render(); }, 300);
+        render();
+      }
+      return;
+    }
+    secsLeft--;
+    render();
+  }, 1000);
+}
+
+function stopTick() { clearInterval(timer); timer = null; }
+
+function goTo(i) {
+  const seq = buildSeq();
+  if (i >= 0 && i < seq.length) {
+    stopTick(); running = false; finished = false;
+    stepIdx = i; secsLeft = seq[i].mins * 60;
+    render();
+  }
+}
+
+function skip(dir) { goTo(stepIdx + dir); }
+
+function restart() {
+  stopTick(); running = false; finished = false;
+  stepIdx = 0; secsLeft = workMins[0] * 60;
+  render();
+}
+
+// ── THEME ─────────────────────────────────────────────────────────────
+document.getElementById('btn-bg').addEventListener('click', () => {
+  const theme = THEMES.find(t=>t.id===themeId);
+  const isDark = theme.dark;
+  const panelBg = isDark ? '#1e2530' : '#f8f2e8';
+  const textClr = isDark ? 'rgba(238,228,210,0.9)' : 'rgba(40,28,16,0.85)';
+
+  const swatches = THEMES.map(t => `
+    <div class="bg-swatch ${t.id===themeId?'sel':''}"
+         style="background:${t.bg}"
+         onclick="setTheme('${t.id}')">${t.lbl}</div>
+  `).join('');
+
+  showPanel(`
+    <div class="panel-handle"></div>
+    <div class="panel-title">Background</div>
+    <div class="bg-grid">${swatches}</div>
+    <button class="text-btn" style="width:100%" onclick="closePanel()">Done</button>
+  `, panelBg, textClr);
+});
+
+function setTheme(id) {
+  themeId = id;
+  render();
+  // Re-render panel swatches
+  document.querySelectorAll('.bg-swatch').forEach(el => {
+    el.classList.toggle('sel', el.getAttribute('onclick').includes(`'${id}'`));
+  });
+}
+
+// ── EDIT TIMERS ────────────────────────────────────────────────────────
+document.getElementById('btn-edit').addEventListener('click', () => {
+  const theme = THEMES.find(t=>t.id===themeId);
+  const isDark = theme.dark;
+  const panelBg = isDark ? '#1e2530' : '#f8f2e8';
+  const textClr = isDark ? 'rgba(238,228,210,0.9)' : 'rgba(40,28,16,0.85)';
+  const inputBg = isDark ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.08)';
+
+  let rows = '';
+  workMins.forEach((w, i) => {
+    rows += `
+      <div class="edit-row">
+        <label>Work block ${i+1}</label>
+        <input class="edit-input" type="number" min="1" max="120" id="w${i}" value="${w}">
+        <span class="edit-unit">min</span>
+      </div>
+    `;
+    if (i < workMins.length - 1) {
+      rows += `
+        <div class="edit-row" style="opacity:0.75">
+          <label>Break after block ${i+1}</label>
+          <input class="edit-input" type="number" min="1" max="60" id="b${i}" value="${breakMins[i]||10}">
+          <span class="edit-unit">min</span>
+        </div>
+      `;
+    }
+  });
+
+  showPanel(`
+    <div class="panel-handle"></div>
+    <div class="panel-title">Edit timers</div>
+    <p style="font-size:0.8rem;margin-bottom:1rem;opacity:0.55">Changes will restart the session.</p>
+    <div>${rows}</div>
+    <button class="save-btn" onclick="saveEdit()">Save & restart</button>
+  `, panelBg, textClr);
+});
+
+function saveEdit() {
+  workMins = workMins.map((_, i) => Math.max(1, Math.min(120, parseInt(document.getElementById('w'+i)?.value)||5)));
+  breakMins = breakMins.map((_, i) => Math.max(1, Math.min(60, parseInt(document.getElementById('b'+i)?.value)||5)));
+  closePanel();
+  stopTick(); running = false; finished = false;
+  stepIdx = 0; secsLeft = workMins[0] * 60;
+  render();
+}
+
+// ── PANEL UTIL ─────────────────────────────────────────────────────────
+function showPanel(html, bg, textColor) {
+  closePanel();
+  const overlay = document.createElement('div');
+  overlay.className = 'panel-overlay';
+  overlay.id = 'panel-overlay';
+  overlay.addEventListener('click', e => { if (e.target === overlay) closePanel(); });
+
+  const panel = document.createElement('div');
+  panel.className = 'panel';
+  panel.style.cssText = `background:${bg};color:${textColor}`;
+  panel.innerHTML = html;
+  overlay.appendChild(panel);
+  document.body.appendChild(overlay);
+}
+
+function closePanel() {
+  const el = document.getElementById('panel-overlay');
+  if (el) el.remove();
+}
+
+// ── SERVICE WORKER ─────────────────────────────────────────────────────
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+  });
+}
+
+// ── INIT ───────────────────────────────────────────────────────────────
+render();
+</script>
+</body>
+</html>
