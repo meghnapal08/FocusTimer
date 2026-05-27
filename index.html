@@ -9,6 +9,14 @@
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon-192.png">
 <title>Focus Timer</title>
+@media (orientation: landscape) {
+    .timer { font-size: clamp(3rem, 14vw, 5rem); }
+    .chips { max-width: 100%; }
+    #app   { justify-content: flex-start; padding-top: max(env(safe-area-inset-top,10px), 10px); }
+    .main  { flex-direction: row; flex-wrap: wrap; justify-content: center; gap: 0.5rem 2rem; }
+    .controls { margin-bottom: 0.8rem; }
+    .session-note { margin-bottom: 0.6rem; }
+  }
 <style>
   @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap');
 
@@ -75,6 +83,12 @@
   .t-dusk    { background: linear-gradient(160deg,#e8d5f0,#d4b8e8,#e0ccf4); }
   .t-night   { background: linear-gradient(160deg,#1a1a2e,#16213e,#0f3060); }
   .t-forest  { background: linear-gradient(160deg,#1a2e1a,#1e3a1e,#243024); }
+  .t-black   { background: #000000; }
+  .t-ink     { background: linear-gradient(160deg,#0a0a0f,#111118,#0d0d14); }
+  .t-terra   { background: linear-gradient(160deg,#3d1c10,#5a2a18,#3d1c10); }
+  .t-stone   { background: linear-gradient(160deg,#2a2a28,#383835,#2a2a28); }
+  .t-cream   { background: linear-gradient(160deg,#faf6ef,#f2ebe0,#faf6ef); }
+  .t-mist    { background: linear-gradient(160deg,#dde4ec,#c8d4e0,#dde4ec); }
 
   /* --- TOP BAR --- */
   .top-bar {
@@ -296,8 +310,12 @@
 
 <div id="app" class="t-sand">
   <div class="top-bar">
-    <button class="icon-btn" id="btn-edit" aria-label="Edit timers">✏️</button>
-    <button class="icon-btn" id="btn-bg"   aria-label="Change background">🎨</button>
+    <button class="icon-btn" id="btn-edit" aria-label="Edit timers">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
+    </button>
+    <button class="icon-btn" id="btn-bg" aria-label="Change background">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg>
+    </button>
   </div>
   <div id="main-view" class="main"></div>
   <div id="finished-view" class="finished" style="display:none"></div>
@@ -314,6 +332,12 @@ const THEMES = [
   { id:'dusk',  cls:'t-dusk',   dark:false, bg:'linear-gradient(135deg,#e8d5f0,#d4b8e8)', lbl:'Dusk'   },
   { id:'night', cls:'t-night',  dark:true,  bg:'linear-gradient(135deg,#1a1a2e,#0f3060)', lbl:'Night'  },
   { id:'forest',cls:'t-forest', dark:true,  bg:'linear-gradient(135deg,#1a2e1a,#243024)', lbl:'Forest' },
+  { id:'black', cls:'t-black',  dark:true,  bg:'#000000',                                 lbl:'Black'  },
+  { id:'ink',   cls:'t-ink',    dark:true,  bg:'linear-gradient(135deg,#0a0a0f,#111118)', lbl:'Ink'    },
+  { id:'terra', cls:'t-terra',  dark:true,  bg:'linear-gradient(135deg,#3d1c10,#5a2a18)', lbl:'Terra'  },
+  { id:'stone', cls:'t-stone',  dark:true,  bg:'linear-gradient(135deg,#2a2a28,#383835)', lbl:'Stone'  },
+  { id:'cream', cls:'t-cream',  dark:false, bg:'linear-gradient(135deg,#faf6ef,#f2ebe0)', lbl:'Cream'  },
+  { id:'mist',  cls:'t-mist',   dark:false, bg:'linear-gradient(135deg,#dde4ec,#c8d4e0)', lbl:'Mist'   },
 ];
 
 let workMins  = [50, 40, 30, 20, 10];
