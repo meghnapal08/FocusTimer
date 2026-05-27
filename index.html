@@ -297,7 +297,7 @@
   .bg-swatch.sel { border-color: rgba(255,255,255,0.75); transform: scale(1.06); }
   .bg-swatch:active { transform: scale(0.95); }
   
-@media (orientation: landscape) {
+@media (orientation: landscape) and (max-height: 500px) {
     .timer { font-size: clamp(3rem, 14vw, 5rem); }
     .chips { max-width: 100%; }
     #app   { justify-content: flex-start; padding-top: max(env(safe-area-inset-top,10px), 10px); }
