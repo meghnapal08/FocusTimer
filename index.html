@@ -10,294 +10,212 @@
 <link rel="apple-touch-icon" href="icon-192.png">
 <title>Focus Timer</title>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap');
 
-:root {
-  --text: rgba(40,28,16,0.88);
-  --muted: rgba(40,28,16,0.45);
-  --card: rgba(255,255,255,0.38);
-  --card-b: rgba(0,0,0,0.10);
-  --btn: rgba(0,0,0,0.08);
-  --btn-b: rgba(0,0,0,0.14);
-  --work: #b05c30;
-  --brk: #2a7850;
-  --accent: #7a4a28;
-  --input-bg: rgba(0,0,0,0.08);
-  --input-text: rgba(40,28,16,0.88);
-  --track: rgba(0,0,0,0.12);
-}
-[data-dark="true"] {
-  --text: rgba(238,228,210,0.92);
-  --muted: rgba(238,228,210,0.42);
-  --card: rgba(0,0,0,0.28);
-  --card-b: rgba(255,255,255,0.10);
-  --btn: rgba(255,255,255,0.10);
-  --btn-b: rgba(255,255,255,0.18);
-  --work: #ffa070;
-  --brk: #72e0a8;
-  --accent: #ffc090;
-  --input-bg: rgba(255,255,255,0.12);
-  --input-text: rgba(238,228,210,0.92);
-  --track: rgba(255,255,255,0.12);
-}
-
-* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-html, body { height: 100%; width: 100%; font-family: 'DM Sans', sans-serif; overflow: hidden; }
-
-#app {
-  min-height: 100vh;
-  min-height: -webkit-fill-available;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: max(env(safe-area-inset-top,20px),20px) 1.5rem max(env(safe-area-inset-bottom,20px),20px);
-  transition: background 0.5s ease;
-  position: relative;
-  overflow: hidden;
-}
-
-/* THEMES */
-.t-sand    { background: linear-gradient(160deg,#f5ede0,#e8d5b7,#f0e0c8); }
-.t-sage    { background: linear-gradient(160deg,#d4e8d0,#b8d4b2,#cce0c8); }
-.t-ocean   { background: linear-gradient(160deg,#d0e8f4,#b0d4ec,#c8e0f0); }
-.t-rose    { background: linear-gradient(160deg,#f4d0d8,#edb8c4,#f0c8d0); }
-.t-slate   { background: linear-gradient(160deg,#2c3e50,#34495e,#2a3a4a); }
-.t-dusk    { background: linear-gradient(160deg,#e8d5f0,#d4b8e8,#e0ccf4); }
-.t-night   { background: linear-gradient(160deg,#1a1a2e,#16213e,#0f3060); }
-.t-forest  { background: linear-gradient(160deg,#1a2e1a,#1e3a1e,#243024); }
-.t-black   { background: #000000; }
-.t-ink     { background: linear-gradient(160deg,#0a0a0f,#111118,#0d0d14); }
-.t-terra   { background: linear-gradient(160deg,#3d1c10,#5a2a18,#3d1c10); }
-.t-stone   { background: linear-gradient(160deg,#2a2a28,#383835,#2a2a28); }
-.t-cream   { background: linear-gradient(160deg,#faf6ef,#f2ebe0,#faf6ef); }
-.t-mist    { background: linear-gradient(160deg,#dde4ec,#c8d4e0,#dde4ec); }
-
-/* TOP BAR */
-.top-bar {
-  position: absolute;
-  top: max(env(safe-area-inset-top,16px),16px);
-  right: 1.25rem;
-  display: flex; gap: 10px; z-index: 5;
-}
-.icon-btn {
-  width: 40px; height: 40px; border-radius: 50%;
-  background: var(--btn); border: 0.5px solid var(--btn-b);
-  color: var(--text); display: flex; align-items: center; justify-content: center;
-  cursor: pointer; transition: transform 0.12s;
-}
-.icon-btn:active { transform: scale(0.91); }
-
-/* MAIN LAYOUT */
-.main {
-  display: flex; flex-direction: column;
-  align-items: center; text-align: center;
-  width: 100%;
-}
-
-.phase-label {
-  font-size: 0.78rem; font-weight: 500;
-  letter-spacing: 0.18em; text-transform: uppercase;
-  margin-bottom: 0.3rem; transition: color 0.4s;
-}
-
-/* TIMER — base (desktop) */
-.timer-wrap {
-  margin: 0.1rem 0 0.2rem;
-  display: flex; justify-content: center;
-}
-.timer {
-  font-family: 'DM Mono', monospace;
-  font-weight: 500;
-  line-height: 1;
-  letter-spacing: -3px;
-  color: var(--text);
-  font-size: clamp(5rem, 14vw, 11rem);
-  transform-origin: center center;
-  display: inline-block;
-}
-
-.session-note { font-size: 0.8rem; color: var(--muted); margin-bottom: 1rem; }
-
-.progress-wrap {
-  width: min(320px, 85vw); height: 3px;
-  background: var(--track); border-radius: 2px;
-  overflow: hidden; margin-bottom: 1.2rem;
-}
-.progress-bar { height: 100%; border-radius: 2px; transition: width 0.6s linear, background 0.4s; }
-
-/* CONTROLS */
-.controls { display: flex; align-items: center; gap: 16px; margin-bottom: 1.4rem; }
-.ctrl-btn {
-  width: 52px; height: 52px; border-radius: 50%;
-  background: var(--btn); border: 0.5px solid var(--btn-b);
-  color: var(--text); font-size: 20px;
-  display: flex; align-items: center; justify-content: center;
-  cursor: pointer; transition: transform 0.12s, opacity 0.2s;
-}
-.ctrl-btn:active { transform: scale(0.91); }
-.ctrl-btn:disabled { opacity: 0.28; pointer-events: none; }
-.play-btn { width: 70px; height: 70px; font-size: 26px; }
-
-/* SESSION CHIPS */
-.chips-wrap {
-  width: 100%;
-  display: flex;
-  justify-content: center;
-}
-.chips {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 6px;
-  /* portrait default: 5 per row. Each chip ~48px + 6px gap */
-  max-width: calc(5 * 50px + 4 * 6px);
-}
-.chip {
-  position: relative;
-  display: flex; flex-direction: column; align-items: center; gap: 3px;
-  padding: 7px 9px; border-radius: 10px;
-  cursor: pointer; transition: transform 0.15s, background 0.2s;
-  min-width: 44px;
-}
-.chip:active { transform: scale(0.93); }
-.chip.active { transform: scale(1.06); }
-.chip.done { opacity: 0.5; }
-.chip-dot { width: 8px; height: 8px; }
-.chip-dot.work { border-radius: 2px; }
-.chip-dot.brk  { border-radius: 50%; }
-.chip-dur { font-family: 'DM Mono', monospace; font-size: 0.72rem; color: var(--text); }
-.chip-lbl { font-size: 0.58rem; letter-spacing: 0.07em; text-transform: uppercase; color: var(--muted); }
-
-/* Green tick badge on done chips */
-.tick-badge {
-  position: absolute;
-  top: -6px; right: -6px;
-  width: 18px; height: 18px;
-  border-radius: 50%;
-  background: #22c55e;
-  display: flex; align-items: center; justify-content: center;
-  animation: popIn 0.3s cubic-bezier(0.34,1.56,0.64,1);
-  box-shadow: 0 1px 4px rgba(0,0,0,0.25);
-}
-.tick-badge svg { width: 10px; height: 10px; }
-@keyframes popIn {
-  from { transform: scale(0); opacity: 0; }
-  to   { transform: scale(1); opacity: 1; }
-}
-
-/* FINISHED */
-.finished { display: flex; flex-direction: column; align-items: center; padding: 1rem; }
-.finished-title {
-  font-family: 'DM Serif Display', serif;
-  font-size: 2.2rem; color: var(--text);
-  margin-bottom: 0.5rem; text-align: center;
-}
-.finished-sub { font-size: 0.9rem; color: var(--muted); margin-bottom: 2rem; text-align: center; }
-.text-btn {
-  padding: 12px 30px; border-radius: 24px;
-  background: var(--btn); border: 0.5px solid var(--btn-b);
-  color: var(--text); font-family: 'DM Sans', sans-serif;
-  font-size: 0.95rem; cursor: pointer; transition: transform 0.12s;
-}
-.text-btn:active { transform: scale(0.95); }
-
-/* PANEL */
-.panel-overlay {
-  position: fixed; inset: 0; background: rgba(0,0,0,0.4);
-  z-index: 20; display: flex; align-items: flex-end;
-  animation: fadeIn 0.2s ease;
-}
-@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-.panel {
-  width: 100%; max-height: 85vh;
-  border-radius: 20px 20px 0 0;
-  padding: 1.5rem 1.25rem calc(max(env(safe-area-inset-bottom,16px),16px) + 0.5rem);
-  overflow-y: auto; animation: slideUp 0.25s ease;
-}
-@keyframes slideUp { from { transform: translateY(40px); opacity:0; } to { transform: translateY(0); opacity:1; } }
-.panel-handle { width: 38px; height: 4px; background: var(--track); border-radius: 2px; margin: 0 auto 1.2rem; }
-.panel-title { font-family: 'DM Serif Display', serif; font-size: 1.4rem; color: var(--text); margin-bottom: 1rem; }
-.edit-row {
-  display: flex; align-items: center; gap: 10px;
-  padding: 10px 14px; border-radius: 10px;
-  background: var(--card); border: 0.5px solid var(--card-b); margin-bottom: 6px;
-}
-.edit-row label { flex: 1; font-size: 0.85rem; color: var(--text); }
-.edit-input {
-  width: 60px; padding: 6px 8px; border-radius: 7px;
-  background: var(--input-bg); color: var(--input-text);
-  font-family: 'DM Mono', monospace; font-size: 0.95rem;
-  text-align: center; border: none; outline: none;
-}
-.edit-unit { font-size: 0.75rem; color: var(--muted); }
-.save-btn {
-  width: 100%; padding: 14px; border-radius: 14px;
-  background: var(--accent); color: #fff;
-  font-family: 'DM Sans', sans-serif; font-size: 1rem; font-weight: 500;
-  border: none; cursor: pointer; margin-top: 1rem; transition: transform 0.12s;
-}
-.save-btn:active { transform: scale(0.97); }
-.bg-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 10px; margin-bottom: 1.2rem; }
-.bg-swatch {
-  aspect-ratio: 1; border-radius: 10px; cursor: pointer;
-  border: 2px solid transparent; transition: transform 0.15s, border-color 0.15s;
-  display: flex; align-items: flex-end; justify-content: center;
-  padding-bottom: 5px; font-size: 0.6rem; color: rgba(255,255,255,0.75);
-  font-weight: 500; letter-spacing: 0.05em; text-transform: uppercase;
-}
-.bg-swatch.sel { border-color: rgba(255,255,255,0.75); transform: scale(1.06); }
-
-/* ── RESPONSIVE TIMER + CHIPS ────────────────────────── */
-
-/* Portrait phone */
-@media (max-width: 600px) and (orientation: portrait) {
-  .timer {
-    font-size: clamp(5rem, 26vw, 7.5rem);
-    transform: scaleY(1.38);
-    letter-spacing: -2px;
+  :root {
+    --text: rgba(40,28,16,0.88); --muted: rgba(40,28,16,0.45);
+    --card: rgba(255,255,255,0.38); --card-b: rgba(0,0,0,0.10);
+    --btn: rgba(0,0,0,0.08); --btn-b: rgba(0,0,0,0.14);
+    --work: #b05c30; --brk: #2a7850; --accent: #7a4a28;
+    --input-bg: rgba(0,0,0,0.08); --input-text: rgba(40,28,16,0.88);
+    --track: rgba(0,0,0,0.12);
   }
-  .timer-wrap { margin: 1rem 0 1rem; }
-  .chips { max-width: calc(5 * 50px + 4 * 6px); }
-}
+  [data-dark="true"] {
+    --text: rgba(238,228,210,0.92); --muted: rgba(238,228,210,0.42);
+    --card: rgba(0,0,0,0.28); --card-b: rgba(255,255,255,0.10);
+    --btn: rgba(255,255,255,0.10); --btn-b: rgba(255,255,255,0.18);
+    --work: #ffa070; --brk: #72e0a8; --accent: #ffc090;
+    --input-bg: rgba(255,255,255,0.12); --input-text: rgba(238,228,210,0.92);
+    --track: rgba(255,255,255,0.12);
+  }
 
-/* Landscape phone */
-@media (max-height: 500px) and (orientation: landscape) {
-  #app { justify-content: flex-start; padding-top: max(env(safe-area-inset-top,8px),8px); gap: 0; }
-  .main { flex-direction: row; flex-wrap: wrap; justify-content: center; gap: 0 2rem; align-items: center; }
-  .timer { font-size: clamp(2.8rem, 10vw, 4.5rem); transform: scaleY(1); letter-spacing: -2px; }
-  .timer-wrap { margin: 0; }
-  .phase-label { width: 100%; }
-  .session-note { margin-bottom: 0.5rem; }
-  .progress-wrap { margin-bottom: 0.8rem; }
-  .controls { margin-bottom: 0.6rem; }
-  .chips { max-width: calc(10 * 50px + 9 * 6px); }
-  .play-btn { width: 56px; height: 56px; font-size: 20px; }
-  .ctrl-btn { width: 42px; height: 42px; font-size: 17px; }
-}
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; width: 100%; font-family: 'DM Sans', sans-serif; overflow: hidden; }
 
-/* Desktop / tablet — no scaleY, just big */
-@media (min-width: 601px) and (orientation: portrait) {
-  .timer { font-size: clamp(6rem, 18vw, 10rem); }
-  .chips { max-width: calc(5 * 50px + 4 * 6px); }
-}
-@media (min-width: 601px) and (orientation: landscape) and (min-height: 501px) {
-  .timer { font-size: clamp(6rem, 14vw, 11rem); }
-  .chips { max-width: calc(10 * 50px + 9 * 6px); }
-}
+  #app {
+    min-height: 100vh; min-height: -webkit-fill-available; width: 100%;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: env(safe-area-inset-top,20px) 1rem env(safe-area-inset-bottom,20px);
+    transition: background 0.5s ease; position: relative; overflow: hidden;
+  }
 
-/* Confetti canvas */
-#confetti-canvas {
-  position: fixed; inset: 0;
-  width: 100%; height: 100%;
-  pointer-events: none; z-index: 99;
-}
+  .t-sand   { background: linear-gradient(160deg,#f5ede0,#e8d5b7,#f0e0c8); }
+  .t-sage   { background: linear-gradient(160deg,#d4e8d0,#b8d4b2,#cce0c8); }
+  .t-ocean  { background: linear-gradient(160deg,#d0e8f4,#b0d4ec,#c8e0f0); }
+  .t-rose   { background: linear-gradient(160deg,#f4d0d8,#edb8c4,#f0c8d0); }
+  .t-slate  { background: linear-gradient(160deg,#2c3e50,#34495e,#2a3a4a); }
+  .t-dusk   { background: linear-gradient(160deg,#e8d5f0,#d4b8e8,#e0ccf4); }
+  .t-night  { background: linear-gradient(160deg,#1a1a2e,#16213e,#0f3060); }
+  .t-forest { background: linear-gradient(160deg,#1a2e1a,#1e3a1e,#243024); }
+  .t-black  { background: #000000; }
+  .t-ink    { background: linear-gradient(160deg,#0a0a0f,#111118,#0d0d14); }
+  .t-terra  { background: linear-gradient(160deg,#3d1c10,#5a2a18,#3d1c10); }
+  .t-stone  { background: linear-gradient(160deg,#2a2a28,#383835,#2a2a28); }
+  .t-cream  { background: linear-gradient(160deg,#faf6ef,#f2ebe0,#faf6ef); }
+  .t-mist   { background: linear-gradient(160deg,#dde4ec,#c8d4e0,#dde4ec); }
+
+  .top-bar {
+    position: absolute; top: max(env(safe-area-inset-top,16px),16px);
+    right: 1.25rem; display: flex; gap: 10px; z-index: 5;
+  }
+  .icon-btn {
+    width: 40px; height: 40px; border-radius: 50%;
+    background: var(--btn); border: 0.5px solid var(--btn-b); color: var(--text);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; transition: transform 0.12s, background 0.15s;
+  }
+  .icon-btn:active { transform: scale(0.91); }
+
+  .main { display: flex; flex-direction: column; align-items: center; text-align: center; width: 100%; }
+
+  .phase-label {
+    font-size: 0.78rem; font-weight: 500; letter-spacing: 0.18em;
+    text-transform: uppercase; margin-bottom: 0.3rem; transition: color 0.4s;
+  }
+
+  /* ── TIMER: desktop default (big) ── */
+  .timer {
+    font-family: 'DM Mono', monospace;
+    font-size: clamp(5rem, 12vw, 11rem);
+    font-weight: 500; line-height: 1; letter-spacing: -4px;
+    color: var(--text); margin: 0.1rem 0 0.25rem;
+    display: inline-block;
+  }
+
+  .session-note { font-size: 0.8rem; color: var(--muted); margin-bottom: 0.9rem; }
+
+  .progress-wrap {
+    width: min(340px, 88vw); height: 3px;
+    background: var(--track); border-radius: 2px; overflow: hidden; margin-bottom: 1.1rem;
+  }
+  .progress-bar { height: 100%; border-radius: 2px; transition: width 0.6s linear, background 0.4s; }
+
+  .controls { display: flex; align-items: center; gap: 16px; margin-bottom: 1.2rem; }
+  .ctrl-btn {
+    width: 52px; height: 52px; border-radius: 50%;
+    background: var(--btn); border: 0.5px solid var(--btn-b); color: var(--text);
+    font-size: 20px; display: flex; align-items: center; justify-content: center;
+    cursor: pointer; transition: transform 0.12s, opacity 0.2s;
+  }
+  .ctrl-btn:active { transform: scale(0.91); }
+  .ctrl-btn:disabled { opacity: 0.28; pointer-events: none; }
+  .play-btn { width: 70px; height: 70px; font-size: 26px; }
+
+  /* ── CHIPS: 5 per row, centered ── */
+  .chips {
+    display: grid;
+    grid-template-columns: repeat(5, auto);
+    justify-content: center;
+    gap: 5px;
+    width: 100%;
+    padding: 0 0.5rem;
+  }
+  .chip {
+    display: flex; flex-direction: column; align-items: center; gap: 3px;
+    padding: 6px 8px; border-radius: 10px; cursor: pointer;
+    transition: transform 0.15s, background 0.2s; min-width: 42px;
+  }
+  .chip:active { transform: scale(0.93); }
+  .chip.active { transform: scale(1.06); }
+  .chip.done   { opacity: 0.45; }
+  .chip-dot      { width: 8px; height: 8px; }
+  .chip-dot.work { border-radius: 2px; }
+  .chip-dot.brk  { border-radius: 50%; }
+
+  /* green tick ball */
+  .chip-tick {
+    width: 14px; height: 14px; border-radius: 50%; background: #22c55e;
+    display: flex; align-items: center; justify-content: center;
+    animation: tickPop 0.35s cubic-bezier(0.34,1.56,0.64,1) both;
+  }
+  @keyframes tickPop {
+    from { transform: scale(0); opacity: 0; }
+    to   { transform: scale(1); opacity: 1; }
+  }
+  .chip-tick svg { width: 8px; height: 8px; }
+  .chip-dur { font-family: 'DM Mono', monospace; font-size: 0.7rem; color: var(--text); }
+  .chip-lbl { font-size: 0.55rem; letter-spacing: 0.07em; text-transform: uppercase; color: var(--muted); }
+
+  .finished { display: flex; flex-direction: column; align-items: center; padding: 1rem; }
+  .finished-title {
+    font-family: 'DM Serif Display', serif; font-size: 2.2rem;
+    color: var(--text); margin-bottom: 0.5rem; text-align: center;
+  }
+  .finished-sub { font-size: 0.9rem; color: var(--muted); margin-bottom: 2rem; text-align: center; }
+  .text-btn {
+    padding: 12px 30px; border-radius: 24px;
+    background: var(--btn); border: 0.5px solid var(--btn-b); color: var(--text);
+    font-family: 'DM Sans', sans-serif; font-size: 0.95rem;
+    cursor: pointer; transition: transform 0.12s;
+  }
+  .text-btn:active { transform: scale(0.95); }
+
+  .panel-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.4);
+    z-index: 20; display: flex; align-items: flex-end; animation: fadeIn 0.2s ease;
+  }
+  @keyframes fadeIn { from { opacity:0 } to { opacity:1 } }
+  .panel {
+    width: 100%; max-height: 85vh; border-radius: 20px 20px 0 0;
+    padding: 1.5rem 1.25rem calc(env(safe-area-inset-bottom,16px) + 1rem);
+    overflow-y: auto; animation: slideUp 0.25s ease;
+  }
+  @keyframes slideUp { from { transform:translateY(40px);opacity:0 } to { transform:translateY(0);opacity:1 } }
+  .panel-handle { width: 38px; height: 4px; background: var(--track); border-radius: 2px; margin: 0 auto 1.2rem; }
+  .panel-title { font-family: 'DM Serif Display', serif; font-size: 1.4rem; color: var(--text); margin-bottom: 1rem; }
+  .edit-row {
+    display: flex; align-items: center; gap: 10px; padding: 10px 14px;
+    border-radius: 10px; background: var(--card); border: 0.5px solid var(--card-b); margin-bottom: 6px;
+  }
+  .edit-row label { flex: 1; font-size: 0.85rem; color: var(--text); }
+  .edit-input {
+    width: 60px; padding: 6px 8px; border-radius: 7px;
+    background: var(--input-bg); color: var(--input-text);
+    font-family: 'DM Mono', monospace; font-size: 0.95rem;
+    text-align: center; border: none; outline: none;
+  }
+  .edit-unit { font-size: 0.75rem; color: var(--muted); }
+  .save-btn {
+    width: 100%; padding: 14px; border-radius: 14px; background: var(--accent); color: #fff;
+    font-family: 'DM Sans', sans-serif; font-size: 1rem; font-weight: 500;
+    border: none; cursor: pointer; margin-top: 1rem; transition: transform 0.12s, opacity 0.15s;
+  }
+  .save-btn:active { transform: scale(0.97); opacity: 0.9; }
+  .bg-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 10px; margin-bottom: 1.2rem; }
+  .bg-swatch {
+    aspect-ratio: 1; border-radius: 10px; cursor: pointer;
+    border: 2px solid transparent; transition: transform 0.15s, border-color 0.15s;
+    display: flex; align-items: flex-end; justify-content: center; padding-bottom: 5px;
+    font-size: 0.6rem; color: rgba(255,255,255,0.75); font-weight: 500;
+    letter-spacing: 0.05em; text-transform: uppercase;
+  }
+  .bg-swatch.sel { border-color: rgba(255,255,255,0.75); transform: scale(1.06); }
+  .bg-swatch:active { transform: scale(0.95); }
+
+  /* ── PORTRAIT PHONE: tall elongated numbers ── */
+  @media (orientation: portrait) and (max-width: 500px) {
+    .timer {
+      font-size: clamp(5.5rem, 30vw, 8rem);
+      transform: scaleY(1.28);
+      letter-spacing: -5px;
+    }
+  }
+
+  /* ── LANDSCAPE PHONE: compact, 10 chips per row ── */
+  @media (orientation: landscape) and (max-height: 500px) {
+    .timer { font-size: clamp(2.6rem, 13vh, 4.5rem); }
+    .chips { grid-template-columns: repeat(10, auto); }
+    #app   { justify-content: flex-start; padding-top: max(env(safe-area-inset-top,8px),8px); }
+    .main  { flex-direction: row; flex-wrap: wrap; justify-content: center; gap: 0.2rem 1.5rem; }
+    .controls { margin-bottom: 0.5rem; }
+    .session-note { margin-bottom: 0.3rem; }
+    .progress-wrap { margin-bottom: 0.7rem; }
+    .play-btn { width: 56px; height: 56px; font-size: 22px; }
+    .ctrl-btn { width: 44px; height: 44px; font-size: 18px; }
+  }
 </style>
 </head>
 <body>
-
-<canvas id="confetti-canvas"></canvas>
 
 <div id="app" class="t-sand">
   <div class="top-bar">
@@ -313,7 +231,6 @@ html, body { height: 100%; width: 100%; font-family: 'DM Sans', sans-serif; over
 </div>
 
 <script>
-// ── THEMES ──────────────────────────────────────────────────────────
 const THEMES = [
   { id:'sand',  cls:'t-sand',   dark:false, bg:'linear-gradient(135deg,#f5ede0,#e8d5b7)', lbl:'Sand'   },
   { id:'sage',  cls:'t-sage',   dark:false, bg:'linear-gradient(135deg,#d4e8d0,#b8d4b2)', lbl:'Sage'   },
@@ -331,309 +248,217 @@ const THEMES = [
   { id:'mist',  cls:'t-mist',   dark:false, bg:'linear-gradient(135deg,#dde4ec,#c8d4e0)', lbl:'Mist'   },
 ];
 
-// ── STATE ────────────────────────────────────────────────────────────
-let workMins  = [50, 40, 30, 20, 10];
-let breakMins = [10, 10, 10, 10];
-let themeId   = 'sand';
-let stepIdx   = 0;
-let secsLeft  = workMins[0] * 60;
-let running   = false;
-let finished  = false;
-let timer     = null;
-let doneSteps = new Set(); // tracks completed step indices
+let workMins     = [50,40,30,20,10];
+let breakMins    = [10,10,10,10];
+let themeId      = 'sand';
+let stepIdx      = 0;
+let secsLeft     = workMins[0]*60;
+let running      = false;
+let finished     = false;
+let timer        = null;
+let completedSet = new Set();
 
 function buildSeq() {
-  const s = [];
-  workMins.forEach((w, i) => {
-    s.push({ type:'work', mins:w, session:i+1 });
-    if (i < workMins.length - 1) s.push({ type:'break', mins:breakMins[i]||10, session:i+1 });
+  const s=[];
+  workMins.forEach((w,i)=>{
+    s.push({type:'work',mins:w,session:i+1});
+    if(i<workMins.length-1) s.push({type:'break',mins:breakMins[i]||10,session:i+1});
   });
   return s;
 }
 
-// ── CONFETTI ─────────────────────────────────────────────────────────
-function launchConfetti() {
-  const canvas = document.getElementById('confetti-canvas');
-  canvas.width  = window.innerWidth;
-  canvas.height = window.innerHeight;
-  const ctx = canvas.getContext('2d');
-  const colors = ['#ff6b6b','#ffd93d','#6bcb77','#4d96ff','#ff6bdb','#ffb347','#aaf0d1'];
-  const cx = canvas.width / 2, cy = canvas.height * 0.55;
-
-  const particles = Array.from({ length: 48 }, () => ({
-    x: cx + (Math.random()-0.5)*60,
-    y: cy,
-    vx: (Math.random()-0.5) * 14,
-    vy: -(Math.random() * 14 + 4),
-    color: colors[Math.floor(Math.random()*colors.length)],
-    w: Math.random()*8+4,
-    h: Math.random()*5+3,
-    rot: Math.random()*360,
-    rotV: (Math.random()-0.5)*12,
-    life: 1,
-    decay: Math.random()*0.012 + 0.014,
-  }));
-
-  let raf;
-  function draw() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    let alive = false;
-    for (const p of particles) {
-      p.x  += p.vx;
-      p.y  += p.vy;
-      p.vy += 0.45;
-      p.vx *= 0.98;
-      p.rot += p.rotV;
-      p.life -= p.decay;
-      if (p.life <= 0) continue;
-      alive = true;
-      ctx.save();
-      ctx.globalAlpha = Math.max(0, p.life);
-      ctx.translate(p.x, p.y);
-      ctx.rotate(p.rot * Math.PI/180);
-      ctx.fillStyle = p.color;
-      ctx.fillRect(-p.w/2, -p.h/2, p.w, p.h);
-      ctx.restore();
-    }
-    if (alive) raf = requestAnimationFrame(draw);
-    else ctx.clearRect(0, 0, canvas.width, canvas.height);
-  }
-  cancelAnimationFrame(raf);
-  draw();
-}
-
-// ── AUDIO ────────────────────────────────────────────────────────────
-function chime() {
-  try {
-    const ctx = new (window.AudioContext || window.webkitAudioContext)();
-    const isDark = THEMES.find(t=>t.id===themeId)?.dark;
-    [0, 0.18, 0.36].forEach((delay, i) => {
-      const freqs = isDark ? [392,494,587] : [523,659,784];
-      const o = ctx.createOscillator(), g = ctx.createGain();
-      o.connect(g); g.connect(ctx.destination);
-      o.frequency.value = freqs[i]; o.type = 'sine';
-      g.gain.setValueAtTime(0, ctx.currentTime+delay);
-      g.gain.linearRampToValueAtTime(0.2, ctx.currentTime+delay+0.04);
-      g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime+delay+0.75);
-      o.start(ctx.currentTime+delay);
-      o.stop(ctx.currentTime+delay+0.8);
+// ── AUDIO ──────────────────────────────────────────────────────────────
+function chime(){
+  try{
+    const ctx=new(window.AudioContext||window.webkitAudioContext)();
+    const isDark=THEMES.find(t=>t.id===themeId)?.dark;
+    [0,0.18,0.36].forEach((delay,i)=>{
+      const freqs=isDark?[392,494,587]:[523,659,784];
+      const o=ctx.createOscillator(),g=ctx.createGain();
+      o.connect(g);g.connect(ctx.destination);
+      o.frequency.value=freqs[i];o.type='sine';
+      g.gain.setValueAtTime(0,ctx.currentTime+delay);
+      g.gain.linearRampToValueAtTime(0.2,ctx.currentTime+delay+0.04);
+      g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+delay+0.75);
+      o.start(ctx.currentTime+delay);o.stop(ctx.currentTime+delay+0.8);
     });
-  } catch(e) {}
+  }catch(e){}
 }
 
-// ── RENDER ───────────────────────────────────────────────────────────
-const TICK_SVG = `<svg viewBox="0 0 10 10" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1.5,5 4,7.5 8.5,2.5"/></svg>`;
+// ── CONFETTI ───────────────────────────────────────────────────────────
+function fireConfetti(chipEl){
+  const rect=chipEl.getBoundingClientRect();
+  const cx=rect.left+rect.width/2;
+  const cy=rect.top+rect.height/2;
+  const colors=['#ff6b6b','#ffd93d','#6bcb77','#4d96ff','#ff85e1','#ffb347','#a0f0a0','#80d8ff'];
+  for(let i=0;i<26;i++){
+    const el=document.createElement('div');
+    const sz=3+Math.random()*6;
+    el.style.cssText=`position:fixed;left:${cx}px;top:${cy}px;width:${sz}px;height:${sz}px;background:${colors[Math.floor(Math.random()*colors.length)]};border-radius:${Math.random()>0.4?'50%':'2px'};pointer-events:none;z-index:9999;`;
+    document.body.appendChild(el);
+    const angle=Math.random()*Math.PI*2;
+    const speed=55+Math.random()*90;
+    const dx=Math.cos(angle)*speed;
+    const dy=Math.sin(angle)*speed-50;
+    const rot=Math.random()*720-360;
+    el.animate([
+      {transform:`translate(-50%,-50%) translate(0px,0px) rotate(0deg)`,opacity:1},
+      {transform:`translate(-50%,-50%) translate(${dx}px,${dy+100}px) rotate(${rot}deg)`,opacity:0}
+    ],{duration:700+Math.random()*500,easing:'cubic-bezier(0,0.9,0.57,1)',fill:'forwards'})
+    .onfinish=()=>el.remove();
+  }
+}
 
-function render() {
-  const seq   = buildSeq();
-  const step  = seq[stepIdx] || seq[seq.length-1];
-  const theme = THEMES.find(t => t.id === themeId);
-  const app   = document.getElementById('app');
-
-  THEMES.forEach(t => app.classList.remove(t.cls));
+// ── RENDER ─────────────────────────────────────────────────────────────
+function render(){
+  const seq=buildSeq();
+  const step=seq[stepIdx]||seq[seq.length-1];
+  const theme=THEMES.find(t=>t.id===themeId);
+  const app=document.getElementById('app');
+  THEMES.forEach(t=>app.classList.remove(t.cls));
   app.classList.add(theme.cls);
-  app.dataset.dark = theme.dark;
+  app.dataset.dark=theme.dark;
 
-  const workColor  = theme.dark ? '#ffa070' : '#b05c30';
-  const breakColor = theme.dark ? '#72e0a8' : '#2a7850';
+  const workColor=theme.dark?'#ffa070':'#b05c30';
+  const breakColor=theme.dark?'#72e0a8':'#2a7850';
 
-  if (finished) {
-    document.getElementById('main-view').style.display = 'none';
-    const fv = document.getElementById('finished-view');
-    fv.style.display = 'flex';
-    fv.innerHTML = `
+  if(finished){
+    document.getElementById('main-view').style.display='none';
+    const fv=document.getElementById('finished-view');
+    fv.style.display='flex';
+    fv.innerHTML=`
       <div class="finished-title">All done ✦</div>
       <div class="finished-sub">You completed all your focus blocks.</div>
-      <button class="text-btn" onclick="restart()">Start over</button>
-    `;
+      <button class="text-btn" onclick="restart()">Start over</button>`;
     return;
   }
 
-  document.getElementById('finished-view').style.display = 'none';
-  const mv = document.getElementById('main-view');
-  mv.style.display = 'flex';
+  document.getElementById('finished-view').style.display='none';
+  const mv=document.getElementById('main-view');
+  mv.style.display='flex';
 
-  const total   = step.mins * 60;
-  const pct     = total > 0 ? ((total - secsLeft) / total) * 100 : 100;
-  const color   = step.type === 'work' ? workColor : breakColor;
-  const mins    = Math.floor(secsLeft / 60);
-  const secs    = secsLeft % 60;
-  const timeStr = `${String(mins).padStart(2,'0')}:${String(secs).padStart(2,'0')}`;
-  const label   = step.type === 'work' ? 'Focus' : 'Break';
-  const note    = step.type === 'work' ? `Block ${step.session} of ${workMins.length}` : 'Rest up';
+  const total=step.mins*60;
+  const pct=total>0?((total-secsLeft)/total)*100:100;
+  const color=step.type==='work'?workColor:breakColor;
+  const m=Math.floor(secsLeft/60), s=secsLeft%60;
+  const timeStr=`${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  const label=step.type==='work'?'Focus':'Break';
+  const note=step.type==='work'?`Block ${step.session} of ${workMins.length}`:'Rest up';
 
-  const chipsHtml = seq.map((s, i) => {
-    const isDone   = doneSteps.has(i);
-    const isActive = i === stepIdx;
-    const cls = isActive ? 'chip active' : isDone ? 'chip done' : 'chip';
-    const dotCls = s.type === 'work' ? 'chip-dot work' : 'chip-dot brk';
-    const bg = isActive
-      ? (s.type==='work' ? 'rgba(160,80,40,0.15)' : 'rgba(40,120,80,0.15)') : 'transparent';
-    const dotColor = s.type === 'work' ? workColor : breakColor;
-    const tick = isDone ? `<div class="tick-badge">${TICK_SVG}</div>` : '';
-    return `<div class="${cls}" style="background:${bg}" onclick="goTo(${i})">
-      ${tick}
-      <div class="${dotCls}" style="background:${dotColor}"></div>
-      <div class="chip-dur">${s.mins}m</div>
-      <div class="chip-lbl">${s.type==='work'?'work':'rest'}</div>
-    </div>`;
+  const tickSvg=`<svg viewBox="0 0 10 8" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 4L3.5 6.5L9 1" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+
+  const chipsHtml=seq.map((s,i)=>{
+    const isDone=completedSet.has(i);
+    const isActive=i===stepIdx;
+    const cls=isActive?'chip active':isDone?'chip done':'chip';
+    const dotCls=s.type==='work'?'chip-dot work':'chip-dot brk';
+    const bg=isActive?(s.type==='work'?'rgba(160,80,40,0.15)':'rgba(40,120,80,0.15)'):'transparent';
+    const dotColor=s.type==='work'?workColor:breakColor;
+    const indicator=(isDone&&s.type==='work')
+      ?`<div class="chip-tick">${tickSvg}</div>`
+      :`<div class="${dotCls}" style="background:${dotColor}"></div>`;
+    return `<div class="${cls}" style="background:${bg}" id="chip-${i}" onclick="goTo(${i})">${indicator}<div class="chip-dur">${s.mins}m</div><div class="chip-lbl">${s.type==='work'?'work':'rest'}</div></div>`;
   }).join('');
 
-  mv.innerHTML = `
+  mv.innerHTML=`
     <div class="phase-label" style="color:${color}">${label}</div>
-    <div class="timer-wrap"><div class="timer">${timeStr}</div></div>
+    <div class="timer">${timeStr}</div>
     <div class="session-note">${note}</div>
-    <div class="progress-wrap">
-      <div class="progress-bar" style="width:${pct}%;background:${color}"></div>
-    </div>
+    <div class="progress-wrap"><div class="progress-bar" style="width:${pct}%;background:${color}"></div></div>
     <div class="controls">
-      <button class="ctrl-btn" onclick="skip(-1)" ${stepIdx===0?'disabled':''}>⏮</button>
-      <button class="ctrl-btn play-btn" onclick="togglePlay()">${running?'⏸':'▶'}</button>
-      <button class="ctrl-btn" onclick="skip(1)" ${stepIdx===seq.length-1?'disabled':''}>⏭</button>
+      <button class="ctrl-btn" onclick="skip(-1)" ${stepIdx===0?'disabled':''} aria-label="Previous">⏮</button>
+      <button class="ctrl-btn play-btn" onclick="togglePlay()" aria-label="${running?'Pause':'Play'}">${running?'⏸':'▶'}</button>
+      <button class="ctrl-btn" onclick="skip(1)" ${stepIdx===seq.length-1?'disabled':''} aria-label="Next">⏭</button>
     </div>
-    <div class="chips-wrap"><div class="chips">${chipsHtml}</div></div>
-  `;
+    <div class="chips">${chipsHtml}</div>`;
 
-  document.title = `${timeStr} — ${label} · Focus`;
+  document.title=`${timeStr} — ${label} · Focus Timer`;
 }
 
-// ── CONTROLS ─────────────────────────────────────────────────────────
-function togglePlay() {
-  running = !running;
-  if (running) startTick(); else stopTick();
-  render();
-}
+// ── CONTROLS ───────────────────────────────────────────────────────────
+function togglePlay(){ running=!running; if(running)startTick();else stopTick(); render(); }
 
-function startTick() {
+function startTick(){
   stopTick();
-  timer = setInterval(() => {
-    if (secsLeft <= 1) {
-      secsLeft = 0;
-      stopTick();
-      running = false;
-      chime();
-      doneSteps.add(stepIdx);  // mark as done
-      launchConfetti();
-      const seq  = buildSeq();
-      const next = stepIdx + 1;
-      if (next >= seq.length) {
-        finished = true;
-        render();
-      } else {
-        render(); // show tick briefly
-        setTimeout(() => {
-          stepIdx  = next;
-          secsLeft = seq[next].mins * 60;
-          render();
-        }, 600);
+  timer=setInterval(()=>{
+    if(secsLeft<=1){
+      secsLeft=0; stopTick(); running=false; chime();
+      completedSet.add(stepIdx);
+      const seq=buildSeq();
+      const isWork=seq[stepIdx]?.type==='work';
+      render(); // render with tick showing
+      if(isWork){
+        const chipEl=document.getElementById(`chip-${stepIdx}`);
+        if(chipEl) fireConfetti(chipEl);
       }
+      const next=stepIdx+1;
+      if(next>=seq.length){ finished=true; setTimeout(()=>render(),800); }
+      else { setTimeout(()=>{ stepIdx=next; secsLeft=seq[next].mins*60; render(); },800); }
       return;
     }
-    secsLeft--;
-    render();
-  }, 1000);
+    secsLeft--; render();
+  },1000);
 }
 
-function stopTick() { clearInterval(timer); timer = null; }
+function stopTick(){ clearInterval(timer); timer=null; }
 
-function goTo(i) {
-  const seq = buildSeq();
-  if (i >= 0 && i < seq.length) {
-    stopTick(); running = false; finished = false;
-    stepIdx = i; secsLeft = seq[i].mins * 60;
-    render();
-  }
+function goTo(i){
+  const seq=buildSeq();
+  if(i>=0&&i<seq.length){ stopTick();running=false;finished=false;stepIdx=i;secsLeft=seq[i].mins*60;render(); }
+}
+function skip(dir){ goTo(stepIdx+dir); }
+function restart(){
+  stopTick();running=false;finished=false;
+  stepIdx=0;secsLeft=workMins[0]*60;completedSet=new Set();render();
 }
 
-function skip(dir) { goTo(stepIdx + dir); }
-
-function restart() {
-  stopTick(); running = false; finished = false;
-  stepIdx = 0; secsLeft = workMins[0] * 60;
-  doneSteps.clear();
-  render();
-}
-
-// ── BG PANEL ─────────────────────────────────────────────────────────
-document.getElementById('btn-bg').addEventListener('click', () => {
-  const theme = THEMES.find(t=>t.id===themeId);
-  const panelBg  = theme.dark ? '#1e2530' : '#f8f2e8';
-  const textClr  = theme.dark ? 'rgba(238,228,210,0.9)' : 'rgba(40,28,16,0.85)';
-  const swatches = THEMES.map(t => `
-    <div class="bg-swatch ${t.id===themeId?'sel':''}" style="background:${t.bg}" onclick="setTheme('${t.id}')">${t.lbl}</div>
-  `).join('');
-  showPanel(`
-    <div class="panel-handle"></div>
-    <div class="panel-title">Background</div>
-    <div class="bg-grid">${swatches}</div>
-    <button class="text-btn" style="width:100%" onclick="closePanel()">Done</button>
-  `, panelBg, textClr);
+// ── THEME PANEL ────────────────────────────────────────────────────────
+document.getElementById('btn-bg').addEventListener('click',()=>{
+  const theme=THEMES.find(t=>t.id===themeId);
+  const isDark=theme.dark;
+  const swatches=THEMES.map(t=>`<div class="bg-swatch ${t.id===themeId?'sel':''}" style="background:${t.bg}" onclick="setTheme('${t.id}')">${t.lbl}</div>`).join('');
+  showPanel(`<div class="panel-handle"></div><div class="panel-title">Background</div><div class="bg-grid">${swatches}</div><button class="text-btn" style="width:100%" onclick="closePanel()">Done</button>`,
+    isDark?'#1e2530':'#f8f2e8', isDark?'rgba(238,228,210,0.9)':'rgba(40,28,16,0.85)');
 });
 
-function setTheme(id) {
-  themeId = id;
-  render();
-  document.querySelectorAll('.bg-swatch').forEach(el => {
-    el.classList.toggle('sel', el.getAttribute('onclick').includes(`'${id}'`));
+function setTheme(id){
+  themeId=id; render();
+  document.querySelectorAll('.bg-swatch').forEach(el=>{
+    el.classList.toggle('sel',el.getAttribute('onclick').includes(`'${id}'`));
   });
 }
 
-// ── EDIT PANEL ────────────────────────────────────────────────────────
-document.getElementById('btn-edit').addEventListener('click', () => {
-  const theme   = THEMES.find(t=>t.id===themeId);
-  const panelBg = theme.dark ? '#1e2530' : '#f8f2e8';
-  const textClr = theme.dark ? 'rgba(238,228,210,0.9)' : 'rgba(40,28,16,0.85)';
-  let rows = '';
-  workMins.forEach((w, i) => {
-    rows += `<div class="edit-row"><label>Work block ${i+1}</label>
-      <input class="edit-input" type="number" min="1" max="120" id="w${i}" value="${w}">
-      <span class="edit-unit">min</span></div>`;
-    if (i < workMins.length-1) {
-      rows += `<div class="edit-row" style="opacity:0.75"><label>Break after block ${i+1}</label>
-        <input class="edit-input" type="number" min="1" max="60" id="b${i}" value="${breakMins[i]||10}">
-        <span class="edit-unit">min</span></div>`;
-    }
+// ── EDIT PANEL ─────────────────────────────────────────────────────────
+document.getElementById('btn-edit').addEventListener('click',()=>{
+  const isDark=THEMES.find(t=>t.id===themeId).dark;
+  let rows='';
+  workMins.forEach((w,i)=>{
+    rows+=`<div class="edit-row"><label>Work block ${i+1}</label><input class="edit-input" type="number" min="1" max="120" id="w${i}" value="${w}"><span class="edit-unit">min</span></div>`;
+    if(i<workMins.length-1) rows+=`<div class="edit-row" style="opacity:0.75"><label>Break after block ${i+1}</label><input class="edit-input" type="number" min="1" max="60" id="b${i}" value="${breakMins[i]||10}"><span class="edit-unit">min</span></div>`;
   });
-  showPanel(`
-    <div class="panel-handle"></div>
-    <div class="panel-title">Edit timers</div>
-    <p style="font-size:0.8rem;margin-bottom:1rem;opacity:0.55">Changes will restart the session.</p>
-    ${rows}
-    <button class="save-btn" onclick="saveEdit()">Save & restart</button>
-  `, panelBg, textClr);
+  showPanel(`<div class="panel-handle"></div><div class="panel-title">Edit timers</div><p style="font-size:0.8rem;margin-bottom:1rem;opacity:0.55">Changes will restart the session.</p>${rows}<button class="save-btn" onclick="saveEdit()">Save & restart</button>`,
+    isDark?'#1e2530':'#f8f2e8', isDark?'rgba(238,228,210,0.9)':'rgba(40,28,16,0.85)');
 });
 
-function saveEdit() {
-  workMins  = workMins.map((_,i)  => Math.max(1, Math.min(120, parseInt(document.getElementById('w'+i)?.value)||5)));
-  breakMins = breakMins.map((_,i) => Math.max(1, Math.min(60,  parseInt(document.getElementById('b'+i)?.value)||5)));
-  closePanel();
-  stopTick(); running = false; finished = false;
-  stepIdx = 0; secsLeft = workMins[0]*60; doneSteps.clear();
-  render();
+function saveEdit(){
+  workMins=workMins.map((_,i)=>Math.max(1,Math.min(120,parseInt(document.getElementById('w'+i)?.value)||5)));
+  breakMins=breakMins.map((_,i)=>Math.max(1,Math.min(60,parseInt(document.getElementById('b'+i)?.value)||5)));
+  closePanel(); stopTick(); running=false; finished=false;
+  stepIdx=0; secsLeft=workMins[0]*60; completedSet=new Set(); render();
 }
 
-// ── PANEL UTIL ───────────────────────────────────────────────────────
-function showPanel(html, bg, textColor) {
+function showPanel(html,bg,textColor){
   closePanel();
-  const overlay = document.createElement('div');
-  overlay.className = 'panel-overlay'; overlay.id = 'panel-overlay';
-  overlay.addEventListener('click', e => { if (e.target === overlay) closePanel(); });
-  const panel = document.createElement('div');
-  panel.className = 'panel';
-  panel.style.cssText = `background:${bg};color:${textColor}`;
-  panel.innerHTML = html;
-  overlay.appendChild(panel);
-  document.body.appendChild(overlay);
+  const overlay=document.createElement('div');
+  overlay.className='panel-overlay'; overlay.id='panel-overlay';
+  overlay.addEventListener('click',e=>{if(e.target===overlay)closePanel();});
+  const panel=document.createElement('div');
+  panel.className='panel'; panel.style.cssText=`background:${bg};color:${textColor}`;
+  panel.innerHTML=html; overlay.appendChild(panel); document.body.appendChild(overlay);
 }
-function closePanel() {
-  const el = document.getElementById('panel-overlay');
-  if (el) el.remove();
-}
+function closePanel(){ const el=document.getElementById('panel-overlay'); if(el)el.remove(); }
 
-// ── SERVICE WORKER ───────────────────────────────────────────────────
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(()=>{}));
-}
+if('serviceWorker' in navigator){ window.addEventListener('load',()=>{ navigator.serviceWorker.register('sw.js').catch(()=>{}); }); }
 
 render();
 </script>
