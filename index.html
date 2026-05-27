@@ -9,14 +9,6 @@
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon-192.png">
 <title>Focus Timer</title>
-    @media (orientation: landscape) {
-    .timer { font-size: clamp(3rem, 14vw, 5rem); }
-    .chips { max-width: 100%; }
-    #app   { justify-content: flex-start; padding-top: max(env(safe-area-inset-top,10px), 10px); }
-    .main  { flex-direction: row; flex-wrap: wrap; justify-content: center; gap: 0.5rem 2rem; }
-    .controls { margin-bottom: 0.8rem; }
-    .session-note { margin-bottom: 0.6rem; }
-  }
 <style>
   @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap');
 
@@ -304,6 +296,14 @@
   }
   .bg-swatch.sel { border-color: rgba(255,255,255,0.75); transform: scale(1.06); }
   .bg-swatch:active { transform: scale(0.95); }
+@media (orientation: landscape) {
+    .timer { font-size: clamp(3rem, 14vw, 5rem); }
+    .chips { max-width: 100%; }
+    #app   { justify-content: flex-start; padding-top: max(env(safe-area-inset-top,10px), 10px); }
+    .main  { flex-direction: row; flex-wrap: wrap; justify-content: center; gap: 0.5rem 2rem; }
+    .controls { margin-bottom: 0.8rem; }
+    .session-note { margin-bottom: 0.6rem; }
+  }
 </style>
 </head>
 <body>
