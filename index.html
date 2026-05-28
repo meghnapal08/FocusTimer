@@ -93,7 +93,7 @@
   /* Timer — big by default (desktop) */
   .timer {
     font-family: 'DM Mono', monospace;
-    font-size: clamp(5rem, 12vw, 11rem);
+    font-size: clamp(7rem, 22vw, 18rem);
     font-weight: 500; line-height: 1; letter-spacing: -4px;
     color: var(--text); margin: 0.1rem 0 0.25rem;
     display: inline-block;
@@ -224,7 +224,7 @@
   /* ── PORTRAIT PHONE: bigger elongated timer, chips wrap to 5 per row ── */
   @media (orientation: portrait) and (max-width: 500px) {
     .timer {
-      font-size: clamp(5.5rem, 30vw, 8rem);
+      font-size: clamp(7rem, 38vw, 12rem);
       transform: scaleY(1.28);
       letter-spacing: -5px;
     }
@@ -245,7 +245,7 @@
       padding-top: max(env(safe-area-inset-top,8px), 8px);
       padding-bottom: 80px;
     }
-    .timer { font-size: clamp(2.6rem, 13vh, 4.5rem); }
+    .timer { font-size: clamp(3.5rem, 18vh, 7rem); }
     .main  { flex-direction: row; flex-wrap: wrap; justify-content: center; gap: 0.2rem 1.5rem; }
     .controls { margin-bottom: 0; }
     .session-note { margin-bottom: 0.3rem; }
