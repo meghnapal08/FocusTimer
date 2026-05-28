@@ -10,8 +10,8 @@
 <link rel="apple-touch-icon" href="icon-192.png">
 <title>Focus Timer</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap');
-
+  @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@800;900&family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap');
+  
   :root {
     --text: rgba(40,28,16,0.88); --muted: rgba(40,28,16,0.45);
     --card: rgba(255,255,255,0.38); --card-b: rgba(0,0,0,0.10);
@@ -92,9 +92,9 @@
 
   /* Timer — big by default (desktop) */
   .timer {
-    font-family: 'DM Mono', monospace;
-    font-size: clamp(7rem, 22vw, 18rem);
-    font-weight: 500; line-height: 1; letter-spacing: -4px;
+    font-family: 'Nunito', sans-serif;
+    font-size: clamp(9rem, 44vw, 16rem);
+    font-weight: 900; line-height: 1; letter-spacing: -6px;
     color: var(--text); margin: 0.1rem 0 0.25rem;
     display: inline-block;
   }
@@ -245,7 +245,7 @@
       padding-top: max(env(safe-area-inset-top,8px), 8px);
       padding-bottom: 80px;
     }
-    .timer { font-size: clamp(3.5rem, 18vh, 7rem); }
+    .timer { font-size: clamp(4.5rem, 26vh, 9rem); }
     .main  { flex-direction: row; flex-wrap: wrap; justify-content: center; gap: 0.2rem 1.5rem; }
     .controls { margin-bottom: 0; }
     .session-note { margin-bottom: 0.3rem; }
