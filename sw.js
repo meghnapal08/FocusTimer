@@ -1,4 +1,4 @@
-const CACHE = 'focus-timer-v1';
+const CACHE = 'focus-timer-v2';
 const FILES = ['/FocusTimer/manifest.json', '/FocusTimer/icon-192.png', '/FocusTimer/icon-512.png'];
 
 self.addEventListener('install', e => {
