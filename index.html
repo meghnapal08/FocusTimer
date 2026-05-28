@@ -33,12 +33,21 @@
   html, body { height: 100%; width: 100%; font-family: 'DM Sans', sans-serif; overflow: hidden; }
 
   #app {
-    min-height: 100vh; min-height: -webkit-fill-available; width: 100%;
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-    padding: env(safe-area-inset-top,20px) 1rem env(safe-area-inset-bottom,20px);
-    transition: background 0.5s ease; position: relative; overflow: hidden;
+    min-height: 100vh;
+    min-height: -webkit-fill-available;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    /* leave room at bottom for the chips footer */
+    padding: env(safe-area-inset-top,20px) 1rem 110px;
+    transition: background 0.5s ease;
+    position: relative;
+    overflow: hidden;
   }
 
+  /* ── THEMES ── */
   .t-sand   { background: linear-gradient(160deg,#f5ede0,#e8d5b7,#f0e0c8); }
   .t-sage   { background: linear-gradient(160deg,#d4e8d0,#b8d4b2,#cce0c8); }
   .t-ocean  { background: linear-gradient(160deg,#d0e8f4,#b0d4ec,#c8e0f0); }
@@ -54,9 +63,12 @@
   .t-cream  { background: linear-gradient(160deg,#faf6ef,#f2ebe0,#faf6ef); }
   .t-mist   { background: linear-gradient(160deg,#dde4ec,#c8d4e0,#dde4ec); }
 
+  /* ── TOP BAR ── */
   .top-bar {
-    position: absolute; top: max(env(safe-area-inset-top,16px),16px);
-    right: 1.25rem; display: flex; gap: 10px; z-index: 5;
+    position: absolute;
+    top: max(env(safe-area-inset-top,16px), 16px);
+    right: 1.25rem;
+    display: flex; gap: 10px; z-index: 5;
   }
   .icon-btn {
     width: 40px; height: 40px; border-radius: 50%;
@@ -66,14 +78,19 @@
   }
   .icon-btn:active { transform: scale(0.91); }
 
-  .main { display: flex; flex-direction: column; align-items: center; text-align: center; width: 100%; }
-
-  .phase-label {
-    font-size: 0.78rem; font-weight: 500; letter-spacing: 0.18em;
-    text-transform: uppercase; margin-bottom: 0.3rem; transition: color 0.4s;
+  /* ── MAIN TIMER AREA (centred) ── */
+  .main {
+    display: flex; flex-direction: column;
+    align-items: center; text-align: center; width: 100%;
   }
 
-  /* ── TIMER: desktop default (big) ── */
+  .phase-label {
+    font-size: 0.78rem; font-weight: 500;
+    letter-spacing: 0.18em; text-transform: uppercase;
+    margin-bottom: 0.3rem; transition: color 0.4s;
+  }
+
+  /* Timer — big by default (desktop) */
   .timer {
     font-family: 'DM Mono', monospace;
     font-size: clamp(5rem, 12vw, 11rem);
@@ -86,11 +103,12 @@
 
   .progress-wrap {
     width: min(340px, 88vw); height: 3px;
-    background: var(--track); border-radius: 2px; overflow: hidden; margin-bottom: 1.1rem;
+    background: var(--track); border-radius: 2px;
+    overflow: hidden; margin-bottom: 1.1rem;
   }
   .progress-bar { height: 100%; border-radius: 2px; transition: width 0.6s linear, background 0.4s; }
 
-  .controls { display: flex; align-items: center; gap: 16px; margin-bottom: 1.2rem; }
+  .controls { display: flex; align-items: center; gap: 16px; }
   .ctrl-btn {
     width: 52px; height: 52px; border-radius: 50%;
     background: var(--btn); border: 0.5px solid var(--btn-b); color: var(--text);
@@ -101,19 +119,29 @@
   .ctrl-btn:disabled { opacity: 0.28; pointer-events: none; }
   .play-btn { width: 70px; height: 70px; font-size: 26px; }
 
-  /* ── CHIPS: 5 per row, centered ── */
-  .chips {
-    display: grid;
-    grid-template-columns: repeat(5, auto);
-    justify-content: center;
-    gap: 5px;
-    width: 100%;
-    padding: 0 0.5rem;
+  /* ── CHIPS FOOTER — pinned to bottom ── */
+  .chips-footer {
+    position: absolute;
+    bottom: max(env(safe-area-inset-bottom,16px), 16px);
+    left: 0; right: 0;
+    display: flex; justify-content: center;
+    padding: 8px 1rem 4px;
   }
+
+  /* Default: single row (desktop + landscape) */
+  .chips {
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+  }
+
   .chip {
     display: flex; flex-direction: column; align-items: center; gap: 3px;
     padding: 6px 8px; border-radius: 10px; cursor: pointer;
     transition: transform 0.15s, background 0.2s; min-width: 42px;
+    flex-shrink: 0;
   }
   .chip:active { transform: scale(0.93); }
   .chip.active { transform: scale(1.06); }
@@ -122,7 +150,7 @@
   .chip-dot.work { border-radius: 2px; }
   .chip-dot.brk  { border-radius: 50%; }
 
-  /* green tick ball */
+  /* Green tick ball */
   .chip-tick {
     width: 14px; height: 14px; border-radius: 50%; background: #22c55e;
     display: flex; align-items: center; justify-content: center;
@@ -136,6 +164,7 @@
   .chip-dur { font-family: 'DM Mono', monospace; font-size: 0.7rem; color: var(--text); }
   .chip-lbl { font-size: 0.55rem; letter-spacing: 0.07em; text-transform: uppercase; color: var(--muted); }
 
+  /* ── FINISHED ── */
   .finished { display: flex; flex-direction: column; align-items: center; padding: 1rem; }
   .finished-title {
     font-family: 'DM Serif Display', serif; font-size: 2.2rem;
@@ -150,17 +179,18 @@
   }
   .text-btn:active { transform: scale(0.95); }
 
+  /* ── PANELS ── */
   .panel-overlay {
     position: fixed; inset: 0; background: rgba(0,0,0,0.4);
     z-index: 20; display: flex; align-items: flex-end; animation: fadeIn 0.2s ease;
   }
-  @keyframes fadeIn { from { opacity:0 } to { opacity:1 } }
+  @keyframes fadeIn { from{opacity:0}to{opacity:1} }
   .panel {
     width: 100%; max-height: 85vh; border-radius: 20px 20px 0 0;
     padding: 1.5rem 1.25rem calc(env(safe-area-inset-bottom,16px) + 1rem);
     overflow-y: auto; animation: slideUp 0.25s ease;
   }
-  @keyframes slideUp { from { transform:translateY(40px);opacity:0 } to { transform:translateY(0);opacity:1 } }
+  @keyframes slideUp { from{transform:translateY(40px);opacity:0}to{transform:translateY(0);opacity:1} }
   .panel-handle { width: 38px; height: 4px; background: var(--track); border-radius: 2px; margin: 0 auto 1.2rem; }
   .panel-title { font-family: 'DM Serif Display', serif; font-size: 1.4rem; color: var(--text); margin-bottom: 1rem; }
   .edit-row {
@@ -190,28 +220,40 @@
     letter-spacing: 0.05em; text-transform: uppercase;
   }
   .bg-swatch.sel { border-color: rgba(255,255,255,0.75); transform: scale(1.06); }
-  .bg-swatch:active { transform: scale(0.95); }
 
-  /* ── PORTRAIT PHONE: tall elongated numbers ── */
+  /* ── PORTRAIT PHONE: bigger elongated timer, chips wrap to 5 per row ── */
   @media (orientation: portrait) and (max-width: 500px) {
     .timer {
       font-size: clamp(5.5rem, 30vw, 8rem);
       transform: scaleY(1.28);
       letter-spacing: -5px;
     }
+    /* wrap into 2 rows of 5 */
+    .chips {
+      display: grid;
+      grid-template-columns: repeat(5, auto);
+      justify-content: center;
+    }
+    #app { padding-bottom: 150px; }
+    .chips-footer { bottom: max(env(safe-area-inset-bottom,16px), 16px); }
   }
 
-  /* ── LANDSCAPE PHONE: compact, 10 chips per row ── */
+  /* ── LANDSCAPE PHONE: compact, single row chips ── */
   @media (orientation: landscape) and (max-height: 500px) {
+    #app {
+      justify-content: flex-start;
+      padding-top: max(env(safe-area-inset-top,8px), 8px);
+      padding-bottom: 80px;
+    }
     .timer { font-size: clamp(2.6rem, 13vh, 4.5rem); }
-    .chips { grid-template-columns: repeat(10, auto); }
-    #app   { justify-content: flex-start; padding-top: max(env(safe-area-inset-top,8px),8px); }
     .main  { flex-direction: row; flex-wrap: wrap; justify-content: center; gap: 0.2rem 1.5rem; }
-    .controls { margin-bottom: 0.5rem; }
+    .controls { margin-bottom: 0; }
     .session-note { margin-bottom: 0.3rem; }
-    .progress-wrap { margin-bottom: 0.7rem; }
+    .progress-wrap { margin-bottom: 0.6rem; }
     .play-btn { width: 56px; height: 56px; font-size: 22px; }
     .ctrl-btn { width: 44px; height: 44px; font-size: 18px; }
+    .chips-footer { bottom: max(env(safe-area-inset-bottom,8px), 8px); }
+    .chip { padding: 4px 7px; min-width: 36px; }
   }
 </style>
 </head>
@@ -227,6 +269,7 @@
     </button>
   </div>
   <div id="main-view" class="main"></div>
+  <div class="chips-footer"><div class="chips" id="chips-row"></div></div>
   <div id="finished-view" class="finished" style="display:none"></div>
 </div>
 
@@ -288,8 +331,7 @@ function chime(){
 // ── CONFETTI ───────────────────────────────────────────────────────────
 function fireConfetti(chipEl){
   const rect=chipEl.getBoundingClientRect();
-  const cx=rect.left+rect.width/2;
-  const cy=rect.top+rect.height/2;
+  const cx=rect.left+rect.width/2, cy=rect.top+rect.height/2;
   const colors=['#ff6b6b','#ffd93d','#6bcb77','#4d96ff','#ff85e1','#ffb347','#a0f0a0','#80d8ff'];
   for(let i=0;i<26;i++){
     const el=document.createElement('div');
@@ -298,8 +340,7 @@ function fireConfetti(chipEl){
     document.body.appendChild(el);
     const angle=Math.random()*Math.PI*2;
     const speed=55+Math.random()*90;
-    const dx=Math.cos(angle)*speed;
-    const dy=Math.sin(angle)*speed-50;
+    const dx=Math.cos(angle)*speed, dy=Math.sin(angle)*speed-50;
     const rot=Math.random()*720-360;
     el.animate([
       {transform:`translate(-50%,-50%) translate(0px,0px) rotate(0deg)`,opacity:1},
@@ -307,6 +348,23 @@ function fireConfetti(chipEl){
     ],{duration:700+Math.random()*500,easing:'cubic-bezier(0,0.9,0.57,1)',fill:'forwards'})
     .onfinish=()=>el.remove();
   }
+}
+
+// ── RENDER CHIPS (separate from main so footer stays put) ──────────────
+function renderChips(seq, workColor, breakColor){
+  const tickSvg=`<svg viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+  const html=seq.map((s,i)=>{
+    const isDone=completedSet.has(i), isActive=i===stepIdx;
+    const cls=isActive?'chip active':isDone?'chip done':'chip';
+    const dotCls=s.type==='work'?'chip-dot work':'chip-dot brk';
+    const bg=isActive?(s.type==='work'?'rgba(160,80,40,0.15)':'rgba(40,120,80,0.15)'):'transparent';
+    const dotColor=s.type==='work'?workColor:breakColor;
+    const indicator=(isDone&&s.type==='work')
+      ?`<div class="chip-tick">${tickSvg}</div>`
+      :`<div class="${dotCls}" style="background:${dotColor}"></div>`;
+    return `<div class="${cls}" style="background:${bg}" id="chip-${i}" onclick="goTo(${i})">${indicator}<div class="chip-dur">${s.mins}m</div><div class="chip-lbl">${s.type==='work'?'work':'rest'}</div></div>`;
+  }).join('');
+  document.getElementById('chips-row').innerHTML=html;
 }
 
 // ── RENDER ─────────────────────────────────────────────────────────────
@@ -321,6 +379,9 @@ function render(){
 
   const workColor=theme.dark?'#ffa070':'#b05c30';
   const breakColor=theme.dark?'#72e0a8':'#2a7850';
+
+  // always render chips in footer
+  renderChips(seq, workColor, breakColor);
 
   if(finished){
     document.getElementById('main-view').style.display='none';
@@ -345,32 +406,16 @@ function render(){
   const label=step.type==='work'?'Focus':'Break';
   const note=step.type==='work'?`Block ${step.session} of ${workMins.length}`:'Rest up';
 
-  const tickSvg=`<svg viewBox="0 0 10 8" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 4L3.5 6.5L9 1" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
-
-  const chipsHtml=seq.map((s,i)=>{
-    const isDone=completedSet.has(i);
-    const isActive=i===stepIdx;
-    const cls=isActive?'chip active':isDone?'chip done':'chip';
-    const dotCls=s.type==='work'?'chip-dot work':'chip-dot brk';
-    const bg=isActive?(s.type==='work'?'rgba(160,80,40,0.15)':'rgba(40,120,80,0.15)'):'transparent';
-    const dotColor=s.type==='work'?workColor:breakColor;
-    const indicator=(isDone&&s.type==='work')
-      ?`<div class="chip-tick">${tickSvg}</div>`
-      :`<div class="${dotCls}" style="background:${dotColor}"></div>`;
-    return `<div class="${cls}" style="background:${bg}" id="chip-${i}" onclick="goTo(${i})">${indicator}<div class="chip-dur">${s.mins}m</div><div class="chip-lbl">${s.type==='work'?'work':'rest'}</div></div>`;
-  }).join('');
-
   mv.innerHTML=`
     <div class="phase-label" style="color:${color}">${label}</div>
     <div class="timer">${timeStr}</div>
     <div class="session-note">${note}</div>
     <div class="progress-wrap"><div class="progress-bar" style="width:${pct}%;background:${color}"></div></div>
     <div class="controls">
-      <button class="ctrl-btn" onclick="skip(-1)" ${stepIdx===0?'disabled':''} aria-label="Previous">⏮</button>
-      <button class="ctrl-btn play-btn" onclick="togglePlay()" aria-label="${running?'Pause':'Play'}">${running?'⏸':'▶'}</button>
-      <button class="ctrl-btn" onclick="skip(1)" ${stepIdx===seq.length-1?'disabled':''} aria-label="Next">⏭</button>
-    </div>
-    <div class="chips">${chipsHtml}</div>`;
+      <button class="ctrl-btn" onclick="skip(-1)" ${stepIdx===0?'disabled':''}>⏮</button>
+      <button class="ctrl-btn play-btn" onclick="togglePlay()">${running?'⏸':'▶'}</button>
+      <button class="ctrl-btn" onclick="skip(1)" ${stepIdx===seq.length-1?'disabled':''}>⏭</button>
+    </div>`;
 
   document.title=`${timeStr} — ${label} · Focus Timer`;
 }
@@ -386,7 +431,7 @@ function startTick(){
       completedSet.add(stepIdx);
       const seq=buildSeq();
       const isWork=seq[stepIdx]?.type==='work';
-      render(); // render with tick showing
+      render();
       if(isWork){
         const chipEl=document.getElementById(`chip-${stepIdx}`);
         if(chipEl) fireConfetti(chipEl);
