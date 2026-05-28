@@ -83,6 +83,7 @@
   .main {
     display: flex; flex-direction: column;
     align-items: center; text-align: center; width: 100%;
+    margin-top: 0;
   }
 
   .phase-label {
@@ -242,12 +243,12 @@
   /* ── LANDSCAPE PHONE: compact, single row chips ── */
   @media (orientation: landscape) and (max-height: 500px) {
     #app {
-      justify-content: flex-start;
+      justify-content: center;
       padding-top: max(env(safe-area-inset-top,8px), 8px);
       padding-bottom: 80px;
     }
-    .timer { font-size: clamp(4.5rem, 26vh, 9rem); }
-    .main  { flex-direction: row; flex-wrap: wrap; justify-content: center; gap: 0.2rem 1.5rem; }
+    .timer { font-size: clamp(5rem, 30vh, 10rem); }
+    .main  { flex-direction: column; justify-content: center; gap: 0.2rem; }
     .controls { margin-bottom: 0; }
     .session-note { margin-bottom: 0.3rem; }
     .progress-wrap { margin-bottom: 0.6rem; }
@@ -337,17 +338,29 @@ function fireConfetti(chipEl){
   for(let i=0;i<26;i++){
     const el=document.createElement('div');
     const sz=3+Math.random()*6;
-    el.style.cssText=`position:fixed;left:${cx}px;top:${cy}px;width:${sz}px;height:${sz}px;background:${colors[Math.floor(Math.random()*colors.length)]};border-radius:${Math.random()>0.4?'50%':'2px'};pointer-events:none;z-index:9999;`;
-    document.body.appendChild(el);
     const angle=Math.random()*Math.PI*2;
-    const speed=55+Math.random()*90;
-    const dx=Math.cos(angle)*speed, dy=Math.sin(angle)*speed-50;
+    const speed=60+Math.random()*90;
+    const dx=Math.cos(angle)*speed;
+    const dy=Math.sin(angle)*speed-60;
     const rot=Math.random()*720-360;
-    el.animate([
-      {transform:`translate(-50%,-50%) translate(0px,0px) rotate(0deg)`,opacity:1},
-      {transform:`translate(-50%,-50%) translate(${dx}px,${dy+100}px) rotate(${rot}deg)`,opacity:0}
-    ],{duration:700+Math.random()*500,easing:'cubic-bezier(0,0.9,0.57,1)',fill:'forwards'})
-    .onfinish=()=>el.remove();
+    const dur=700+Math.random()*500;
+    const color=colors[Math.floor(Math.random()*colors.length)];
+    const br=Math.random()>0.4?'50%':'2px';
+    el.style.cssText=`
+      position:fixed;left:${cx}px;top:${cy}px;
+      width:${sz}px;height:${sz}px;
+      background:${color};border-radius:${br};
+      pointer-events:none;z-index:9999;
+      transform:translate(-50%,-50%) translate(0px,0px) rotate(0deg);
+      opacity:1;
+      transition:transform ${dur}ms cubic-bezier(0,0.9,0.57,1), opacity ${dur}ms ease;
+    `;
+    document.body.appendChild(el);
+    // force reflow so transition fires
+    el.getBoundingClientRect();
+    el.style.transform=`translate(-50%,-50%) translate(${dx}px,${dy+100}px) rotate(${rot}deg)`;
+    el.style.opacity='0';
+    setTimeout(()=>el.remove(), dur+50);
   }
 }
 
