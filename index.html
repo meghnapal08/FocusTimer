@@ -10,56 +10,49 @@
 <link rel="apple-touch-icon" href="icon-192.png">
 <title>Focus Timer</title>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@800;900&family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@900&family=DM+Serif+Display&family=DM+Sans:wght@300;400;500&display=swap');
 
 :root {
-  --text: rgba(40,28,16,0.90); --muted: rgba(40,28,16,0.38);
-  --card: rgba(255,255,255,0.38); --card-b: rgba(0,0,0,0.10);
+  --text: rgba(40,28,16,0.90); --muted: rgba(40,28,16,0.35);
   --btn: rgba(0,0,0,0.07); --btn-b: rgba(0,0,0,0.12);
+  --card: rgba(255,255,255,0.35); --card-b: rgba(0,0,0,0.10);
   --work: #b05c30; --brk: #2a7850; --accent: #7a4a28;
   --input-bg: rgba(0,0,0,0.08); --input-text: rgba(40,28,16,0.88);
   --track: rgba(0,0,0,0.10);
+  --neon: #39ff84;
 }
 [data-dark="true"] {
-  --text: rgba(238,228,210,0.93); --muted: rgba(238,228,210,0.38);
-  --card: rgba(0,0,0,0.28); --card-b: rgba(255,255,255,0.10);
+  --text: rgba(238,228,210,0.93); --muted: rgba(238,228,210,0.35);
   --btn: rgba(255,255,255,0.09); --btn-b: rgba(255,255,255,0.16);
+  --card: rgba(0,0,0,0.28); --card-b: rgba(255,255,255,0.10);
   --work: #ffa070; --brk: #72e0a8; --accent: #ffc090;
   --input-bg: rgba(255,255,255,0.12); --input-text: rgba(238,228,210,0.92);
   --track: rgba(255,255,255,0.10);
+  --neon: #39ff84;
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 
-html {
-  height: 100%;
-  height: -webkit-fill-available;
-}
-
-body {
+html, body {
   width: 100%; height: 100%;
   font-family: 'DM Sans', sans-serif;
   overflow: hidden;
-  /* Prevent iOS bounce scroll */
-  position: fixed;
-  inset: 0;
+}
+body {
+  /* Kills iOS white gap completely */
+  position: fixed; inset: 0;
 }
 
 /* ── APP SHELL ── */
 #app {
-  width: 100%;
+  width: 100%; height: 100%;
   height: 100dvh;
-  min-height: -webkit-fill-available;
   position: relative;
   overflow: hidden;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
   transition: background 0.5s ease;
-  /* Room for chips at bottom */
-  padding-bottom: 80px;
-  padding-top: max(env(safe-area-inset-top, 0px), 0px);
 }
 
 /* ── THEMES ── */
@@ -81,144 +74,160 @@ body {
 /* ── TOP-RIGHT BUTTONS ── */
 .top-bar {
   position: absolute;
-  top: max(env(safe-area-inset-top, 14px), 14px);
-  right: 1rem;
+  top: max(env(safe-area-inset-top,14px), 14px);
+  right: max(env(safe-area-inset-right,14px), 14px);
   display: flex; gap: 8px; z-index: 10;
 }
 .icon-btn {
-  width: 34px; height: 34px; border-radius: 50%;
+  width: 32px; height: 32px; border-radius: 50%;
   background: var(--btn); border: 0.5px solid var(--btn-b); color: var(--text);
   display: flex; align-items: center; justify-content: center;
   cursor: pointer; transition: transform 0.12s;
 }
-.icon-btn:active { transform: scale(0.90); }
+.icon-btn:active { transform: scale(0.88); }
 
-/* ── MAIN CONTENT — centres the timer ── */
-.main {
-  display: flex; flex-direction: column;
-  align-items: center; text-align: center;
+/* ── TIMER AREA — the main stage ── */
+.timer-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  /* JS will handle right padding in landscape */
   width: 100%;
-  gap: 0;
+  padding: 0 2vw;
 }
 
-/* ── PHASE LABEL — tiny, above timer ── */
 .phase-label {
-  font-size: clamp(0.55rem, 1.6vw, 0.8rem);
+  font-size: clamp(0.5rem, 1.4vw, 0.78rem);
   font-weight: 500; letter-spacing: 0.22em; text-transform: uppercase;
-  margin-bottom: 0.4em; transition: color 0.4s; opacity: 0.85;
+  margin-bottom: 0.3em; opacity: 0.75; transition: color 0.3s;
+  white-space: nowrap;
 }
 
-/* ── THE HERO TIMER ── */
+/* ── THE HERO — JS sets font-size dynamically ── */
 .timer {
   font-family: 'Nunito', sans-serif;
-  /* Fills screen width on portrait, constrained by height on landscape/desktop */
-  font-size: min(28vw, 38vh);
   font-weight: 900;
-  line-height: 0.95;
+  line-height: 1;
   letter-spacing: -0.03em;
   color: var(--text);
-  width: 100%;
-  text-align: center;
-  padding: 0 1vw;
+  white-space: nowrap;
+  /* default so it's visible before JS runs */
+  font-size: 20vw;
 }
 
-/* ── THIN PROGRESS BAR ── */
 .progress-wrap {
-  width: min(50vw, 260px); height: 2px;
+  width: min(44vw, 280px); height: 2px;
   background: var(--track); border-radius: 2px; overflow: hidden;
-  margin: clamp(0.6rem, 2vh, 1.2rem) auto;
+  margin: clamp(0.5rem, 1.5vh, 1.2rem) auto;
 }
-.progress-bar { height: 100%; border-radius: 2px; transition: width 0.6s linear, background 0.4s; }
+.progress-bar { height: 100%; border-radius: 2px; transition: width 0.7s linear, background 0.4s; }
 
-/* ── CONTROLS — small and subtle ── */
-.controls { display: flex; align-items: center; gap: clamp(8px, 2vw, 16px); }
-
+/* Controls */
+.controls {
+  display: flex; align-items: center;
+  gap: clamp(8px, 2vw, 14px);
+}
 .ctrl-btn {
-  width: clamp(36px, 5.5vw, 52px);
-  height: clamp(36px, 5.5vw, 52px);
+  width: clamp(32px, 4.5vw, 48px);
+  height: clamp(32px, 4.5vw, 48px);
   border-radius: 50%;
   background: var(--btn); border: 0.5px solid var(--btn-b); color: var(--text);
-  font-size: clamp(13px, 2vw, 18px);
+  font-size: clamp(12px, 1.8vw, 17px);
   display: flex; align-items: center; justify-content: center;
   cursor: pointer; transition: transform 0.12s, opacity 0.2s;
 }
-.ctrl-btn:active { transform: scale(0.91); }
-.ctrl-btn:disabled { opacity: 0.22; pointer-events: none; }
-
+.ctrl-btn:active { transform: scale(0.90); }
+.ctrl-btn:disabled { opacity: 0.20; pointer-events: none; }
 .play-btn {
-  width: clamp(48px, 7vw, 68px);
-  height: clamp(48px, 7vw, 68px);
-  font-size: clamp(16px, 2.5vw, 24px);
+  width: clamp(44px, 6vw, 62px);
+  height: clamp(44px, 6vw, 62px);
+  font-size: clamp(16px, 2.2vw, 22px);
 }
 
-/* ── CHIPS FOOTER — pinned to bottom, very small ── */
-.chips-footer {
+/* ── SESSION DOTS ── */
+.session-dots {
   position: absolute;
-  bottom: max(env(safe-area-inset-bottom, 10px), 10px);
-  left: 0; right: 0;
-  display: flex; justify-content: center;
-  padding: 0 0.5rem;
-}
-
-/* Single row always; portrait wraps to 5-per-row via grid below */
-.chips {
   display: flex;
-  flex-wrap: nowrap;
-  justify-content: center;
   align-items: center;
-  gap: 3px;
+  justify-content: center;
+  gap: 5px;
+  z-index: 5;
 }
 
-.chip {
-  display: flex; flex-direction: column; align-items: center; gap: 2px;
-  padding: 4px 5px; border-radius: 7px; cursor: pointer;
-  transition: transform 0.15s, background 0.2s;
-  min-width: 32px;
+/* Portrait: horizontal strip at bottom */
+.session-dots {
+  flex-direction: row;
+  bottom: max(env(safe-area-inset-bottom,12px), 12px);
+  left: 0; right: 0;
 }
-.chip:active { transform: scale(0.93); }
-.chip.active { transform: scale(1.08); }
-.chip.done   { opacity: 0.38; }
 
-.chip-dot      { width: 6px; height: 6px; }
-.chip-dot.work { border-radius: 2px; }
-.chip-dot.brk  { border-radius: 50%; }
+/* Landscape: vertical strip on the right */
+@media (orientation: landscape) {
+  .session-dots {
+    flex-direction: column;
+    right: max(env(safe-area-inset-right,14px), 14px);
+    top: 50%; bottom: auto; left: auto;
+    transform: translateY(-50%);
+    gap: 5px;
+  }
+}
 
-.chip-tick {
-  width: 12px; height: 12px; border-radius: 50%; background: #22c55e;
+/* Each dot */
+.s-dot {
+  flex-shrink: 0;
+  width: 9px; height: 9px;
+  cursor: pointer;
+  transition: transform 0.2s, opacity 0.2s, box-shadow 0.2s, background 0.2s;
+  position: relative;
   display: flex; align-items: center; justify-content: center;
-  animation: tickPop 0.35s cubic-bezier(0.34,1.56,0.64,1) both;
 }
-@keyframes tickPop { from{transform:scale(0);opacity:0} to{transform:scale(1);opacity:1} }
-.chip-tick svg { width: 7px; height: 7px; }
+.s-dot.work-dot  { border-radius: 2px; }
+.s-dot.break-dot { border-radius: 50%; }
+.s-dot.is-active {
+  transform: scale(1.5);
+  box-shadow: 0 0 0 1.5px rgba(255,255,255,0.35);
+}
+.s-dot.is-done-work {
+  background: var(--neon) !important;
+  border-radius: 50% !important;
+  box-shadow: 0 0 5px var(--neon), 0 0 10px rgba(57,255,132,0.4);
+}
+.s-dot.is-past { opacity: 0.28; }
+.s-dot:active  { transform: scale(0.88); }
 
-.chip-dur { font-size: 0.58rem; font-family: 'DM Sans', sans-serif; color: var(--text); font-weight: 500; }
-.chip-lbl { font-size: 0.44rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+/* Tick inside completed dot */
+.s-dot.is-done-work::after {
+  content: '';
+  display: block;
+  width: 5px; height: 5px;
+  background: url("data:image/svg+xml,%3Csvg viewBox='0 0 10 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 4L3.5 6.5L9 1' stroke='%23003319' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/contain no-repeat;
+}
 
-/* ── FINISHED SCREEN ── */
-.finished {
+/* ── FINISHED ── */
+.finished-screen {
   display: flex; flex-direction: column; align-items: center;
-  justify-content: center; text-align: center; padding: 2rem;
-  height: 100%; width: 100%;
+  justify-content: center; text-align: center;
+  width: 100%; height: 100%; padding: 2rem;
 }
 .finished-title {
   font-family: 'DM Serif Display', serif;
-  font-size: clamp(2rem, 8vw, 4rem);
+  font-size: clamp(2rem, 8vw, 4.5rem);
   color: var(--text); margin-bottom: 0.5rem;
 }
-.finished-sub { font-size: clamp(0.8rem, 2vw, 1rem); color: var(--muted); margin-bottom: 2rem; }
+.finished-sub { font-size: clamp(0.8rem, 2vw, 1rem); color: var(--muted); margin-bottom: 2.5rem; }
 .text-btn {
-  padding: 12px 30px; border-radius: 24px;
+  padding: 12px 32px; border-radius: 24px;
   background: var(--btn); border: 0.5px solid var(--btn-b); color: var(--text);
   font-family: 'DM Sans', sans-serif; font-size: 0.95rem; cursor: pointer;
   transition: transform 0.12s;
 }
 .text-btn:active { transform: scale(0.95); }
 
-/* ── PANEL OVERLAY ── */
+/* ── PANELS ── */
 .panel-overlay {
   position: fixed; inset: 0; background: rgba(0,0,0,0.45);
-  z-index: 20; display: flex; align-items: flex-end;
-  animation: fadeIn 0.2s ease;
+  z-index: 20; display: flex; align-items: flex-end; animation: fadeIn 0.2s ease;
 }
 @keyframes fadeIn { from{opacity:0}to{opacity:1} }
 .panel {
@@ -228,10 +237,7 @@ body {
 }
 @keyframes slideUp { from{transform:translateY(40px);opacity:0}to{transform:translateY(0);opacity:1} }
 .panel-handle { width: 38px; height: 4px; background: var(--track); border-radius: 2px; margin: 0 auto 1.2rem; }
-.panel-title {
-  font-family: 'DM Serif Display', serif; font-size: 1.4rem;
-  color: var(--text); margin-bottom: 1rem;
-}
+.panel-title { font-family: 'DM Serif Display', serif; font-size: 1.4rem; color: var(--text); margin-bottom: 1rem; }
 .edit-row {
   display: flex; align-items: center; gap: 10px; padding: 10px 14px;
   border-radius: 10px; background: var(--card); border: 0.5px solid var(--card-b); margin-bottom: 6px;
@@ -240,7 +246,7 @@ body {
 .edit-input {
   width: 60px; padding: 6px 8px; border-radius: 7px;
   background: var(--input-bg); color: var(--input-text);
-  font-family: 'DM Sans', monospace; font-size: 0.95rem;
+  font-family: 'DM Sans', sans-serif; font-size: 0.95rem;
   text-align: center; border: none; outline: none;
 }
 .edit-unit { font-size: 0.75rem; color: var(--muted); }
@@ -249,9 +255,9 @@ body {
   background: var(--accent); color: #fff;
   font-family: 'DM Sans', sans-serif; font-size: 1rem; font-weight: 500;
   border: none; cursor: pointer; margin-top: 1rem;
-  transition: transform 0.12s, opacity 0.15s;
+  transition: transform 0.12s;
 }
-.save-btn:active { transform: scale(0.97); opacity: 0.9; }
+.save-btn:active { transform: scale(0.97); }
 .bg-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 10px; margin-bottom: 1.2rem; }
 .bg-swatch {
   aspect-ratio: 1; border-radius: 10px; cursor: pointer;
@@ -261,31 +267,6 @@ body {
   letter-spacing: 0.05em; text-transform: uppercase;
 }
 .bg-swatch.sel { border-color: rgba(255,255,255,0.8); transform: scale(1.06); }
-
-/* ── PORTRAIT PHONE: chips wrap 5-per-row ── */
-@media (orientation: portrait) and (max-width: 500px) {
-  .chips {
-    display: grid;
-    grid-template-columns: repeat(5, auto);
-    justify-content: center;
-    gap: 3px;
-  }
-  #app { padding-bottom: 130px; }
-}
-
-/* ── LANDSCAPE PHONE: tighter vertical spacing ── */
-@media (orientation: landscape) and (max-height: 500px) {
-  #app {
-    padding-bottom: 60px;
-    padding-top: 0;
-    justify-content: center;
-  }
-  .main { gap: 0; }
-  .progress-wrap { margin: 0.4rem auto; }
-  .chip { padding: 3px 4px; min-width: 28px; }
-  .chip-dur { font-size: 0.5rem; }
-  .chip-lbl { font-size: 0.38rem; }
-}
 </style>
 </head>
 <body>
@@ -293,16 +274,28 @@ body {
 <div id="app" class="t-sand">
   <div class="top-bar">
     <button class="icon-btn" id="btn-edit" aria-label="Edit timers">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
     </button>
     <button class="icon-btn" id="btn-bg" aria-label="Change background">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg>
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg>
     </button>
   </div>
 
-  <div id="main-view" class="main" style="display:none"></div>
-  <div id="finished-view" class="finished" style="display:none"></div>
-  <div class="chips-footer"><div class="chips" id="chips-row"></div></div>
+  <!-- Timer area -->
+  <div class="timer-area" id="timer-area">
+    <div class="phase-label" id="phase-label">FOCUS</div>
+    <div class="timer" id="timer-display">50:00</div>
+    <div class="progress-wrap">
+      <div class="progress-bar" id="progress-bar"></div>
+    </div>
+    <div class="controls" id="controls"></div>
+  </div>
+
+  <!-- Finished screen (hidden by default) -->
+  <div class="finished-screen" id="finished-screen" style="display:none"></div>
+
+  <!-- Session dots -->
+  <div class="session-dots" id="session-dots"></div>
 </div>
 
 <script>
@@ -342,6 +335,47 @@ function buildSeq(){
   return s;
 }
 
+// ── FIT TIMER TO SCREEN ────────────────────────────────────────────────
+// Binary search: grow font-size until it just fits width + height constraints
+function fitTimer(){
+  const el = document.getElementById('timer-display');
+  if(!el) return;
+
+  const isLandscape = window.innerWidth > window.innerHeight;
+  const dotStripSize = 28; // px reserved for dot strip
+
+  // Available width: leave room for dots in landscape + padding
+  const availW = isLandscape
+    ? (window.innerWidth - dotStripSize - 32) * 0.97
+    : window.innerWidth * 0.97;
+
+  // Available height: ~72% of screen, rest for controls/label/progress
+  const availH = window.innerHeight * 0.72;
+
+  let lo = 12, hi = 1200;
+  // temporarily make overflow visible for measurement
+  el.style.overflow = 'visible';
+  el.style.whiteSpace = 'nowrap';
+
+  while(lo < hi - 1){
+    const mid = (lo + hi) >> 1;
+    el.style.fontSize = mid + 'px';
+    if(el.scrollWidth <= availW && el.offsetHeight <= availH) lo = mid;
+    else hi = mid;
+  }
+  el.style.fontSize = lo + 'px';
+
+  // In landscape, shift timer area left to centre in remaining space
+  const area = document.getElementById('timer-area');
+  if(isLandscape){
+    area.style.paddingRight = (dotStripSize + 10) + 'px';
+    area.style.paddingLeft  = '2vw';
+  } else {
+    area.style.paddingRight = '2vw';
+    area.style.paddingLeft  = '2vw';
+  }
+}
+
 // ── AUDIO ──────────────────────────────────────────────────────────────
 function chime(){
   try{
@@ -360,55 +394,58 @@ function chime(){
   }catch(e){}
 }
 
-// ── CONFETTI — CSS transitions, works on iOS ───────────────────────────
-function fireConfetti(chipEl){
-  const rect=chipEl.getBoundingClientRect();
+// ── CONFETTI ───────────────────────────────────────────────────────────
+function fireConfetti(dotEl){
+  const rect=dotEl.getBoundingClientRect();
   const cx=rect.left+rect.width/2, cy=rect.top+rect.height/2;
-  const colors=['#ff6b6b','#ffd93d','#6bcb77','#4d96ff','#ff85e1','#ffb347','#a0f0a0','#80d8ff'];
-  for(let i=0;i<28;i++){
+  const colors=['#39ff84','#ffd93d','#ff6b6b','#4d96ff','#ff85e1','#ffb347','#80d8ff','#ffffff'];
+  for(let i=0;i<30;i++){
     const el=document.createElement('div');
-    const sz=3+Math.random()*6;
+    const sz=2+Math.random()*5;
     const angle=Math.random()*Math.PI*2;
-    const speed=60+Math.random()*100;
-    const dx=Math.cos(angle)*speed;
-    const dy=Math.sin(angle)*speed-70;
+    const speed=50+Math.random()*110;
+    const dx=Math.cos(angle)*speed, dy=Math.sin(angle)*speed-80;
     const rot=Math.random()*720-360;
-    const dur=600+Math.random()*500;
+    const dur=500+Math.random()*600;
     const color=colors[Math.floor(Math.random()*colors.length)];
-    const br=Math.random()>0.4?'50%':'2px';
     el.style.cssText=`
       position:fixed;left:${cx}px;top:${cy}px;
       width:${sz}px;height:${sz}px;
-      background:${color};border-radius:${br};
+      background:${color};border-radius:${Math.random()>0.4?'50%':'2px'};
       pointer-events:none;z-index:9999;
-      transform:translate(-50%,-50%) translate(0px,0px) rotate(0deg);
+      transform:translate(-50%,-50%) translate(0,0) rotate(0deg);
       opacity:1;
       transition:transform ${dur}ms cubic-bezier(0,0.9,0.57,1),opacity ${dur}ms ease;
     `;
     document.body.appendChild(el);
-    // force reflow — critical for iOS
-    void el.getBoundingClientRect();
-    el.style.transform=`translate(-50%,-50%) translate(${dx}px,${dy+120}px) rotate(${rot}deg)`;
+    void el.getBoundingClientRect(); // force reflow — critical for iOS
+    el.style.transform=`translate(-50%,-50%) translate(${dx}px,${dy+130}px) rotate(${rot}deg)`;
     el.style.opacity='0';
     setTimeout(()=>{ if(el.parentNode) el.remove(); }, dur+100);
   }
 }
 
-// ── RENDER CHIPS ───────────────────────────────────────────────────────
-function renderChips(seq, workColor, breakColor){
-  const tickSvg=`<svg viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
-  const html=seq.map((s,i)=>{
-    const isDone=completedSet.has(i), isActive=i===stepIdx;
-    const cls=isActive?'chip active':isDone?'chip done':'chip';
-    const dotCls=s.type==='work'?'chip-dot work':'chip-dot brk';
-    const bg=isActive?(s.type==='work'?'rgba(160,80,40,0.14)':'rgba(40,120,80,0.14)'):'transparent';
-    const dotColor=s.type==='work'?workColor:breakColor;
-    const indicator=(isDone&&s.type==='work')
-      ?`<div class="chip-tick">${tickSvg}</div>`
-      :`<div class="${dotCls}" style="background:${dotColor}"></div>`;
-    return `<div class="${cls}" style="background:${bg}" id="chip-${i}" onclick="goTo(${i})">${indicator}<div class="chip-dur">${s.mins}m</div><div class="chip-lbl">${s.type==='work'?'wk':'rst'}</div></div>`;
+// ── RENDER SESSION DOTS ────────────────────────────────────────────────
+function renderDots(seq, workColor, breakColor){
+  const container = document.getElementById('session-dots');
+  container.innerHTML = seq.map((s,i)=>{
+    const isDone = completedSet.has(i);
+    const isActive = i === stepIdx;
+    const isPast = i < stepIdx && !isDone;
+
+    let cls = `s-dot ${s.type==='work'?'work-dot':'break-dot'}`;
+    if(isDone && s.type==='work') cls += ' is-done-work';
+    else if(isActive) cls += ' is-active';
+    else if(isPast)   cls += ' is-past';
+
+    const color = (isDone && s.type==='work') ? 'var(--neon)'
+                : isActive ? (s.type==='work' ? workColor : breakColor)
+                : s.type==='work' ? workColor : breakColor;
+
+    const opacity = isPast ? 0.28 : (isActive ? 1 : 0.55);
+
+    return `<div class="${cls}" style="background:${color};opacity:${opacity}" id="dot-${i}" onclick="goTo(${i})" title="${s.mins}m ${s.type}"></div>`;
   }).join('');
-  document.getElementById('chips-row').innerHTML=html;
 }
 
 // ── MAIN RENDER ────────────────────────────────────────────────────────
@@ -417,49 +454,59 @@ function render(){
   const step=seq[stepIdx]||seq[seq.length-1];
   const theme=THEMES.find(t=>t.id===themeId);
   const app=document.getElementById('app');
+
   THEMES.forEach(t=>app.classList.remove(t.cls));
   app.classList.add(theme.cls);
   app.dataset.dark=theme.dark;
 
   const workColor=theme.dark?'#ffa070':'#b05c30';
   const breakColor=theme.dark?'#72e0a8':'#2a7850';
+  const color=step.type==='work'?workColor:breakColor;
 
-  renderChips(seq, workColor, breakColor);
+  // Session dots
+  renderDots(seq, workColor, breakColor);
 
   if(finished){
-    document.getElementById('main-view').style.display='none';
-    const fv=document.getElementById('finished-view');
-    fv.style.display='flex';
-    fv.innerHTML=`
+    document.getElementById('timer-area').style.display='none';
+    document.getElementById('session-dots').style.display='none';
+    const fs=document.getElementById('finished-screen');
+    fs.style.display='flex';
+    fs.innerHTML=`
       <div class="finished-title">All done ✦</div>
       <div class="finished-sub">Every block completed. Well done.</div>
       <button class="text-btn" onclick="restart()">Start over</button>`;
     return;
   }
 
-  document.getElementById('finished-view').style.display='none';
-  const mv=document.getElementById('main-view');
-  mv.style.display='flex';
+  document.getElementById('timer-area').style.display='flex';
+  document.getElementById('session-dots').style.display='flex';
+  document.getElementById('finished-screen').style.display='none';
 
-  const total=step.mins*60;
-  const pct=total>0?((total-secsLeft)/total)*100:100;
-  const color=step.type==='work'?workColor:breakColor;
+  // Phase label
+  document.getElementById('phase-label').textContent=step.type==='work'?'FOCUS':'BREAK';
+  document.getElementById('phase-label').style.color=color;
+
+  // Timer digits
   const m=Math.floor(secsLeft/60), s=secsLeft%60;
   const timeStr=`${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
-  const label=step.type==='work'?'Focus':'Break';
-  const note=step.type==='work'?`Block ${step.session} of ${workMins.length}`:'Rest up';
+  document.getElementById('timer-display').textContent=timeStr;
 
-  mv.innerHTML=`
-    <div class="phase-label" style="color:${color}">${label}</div>
-    <div class="timer">${timeStr}</div>
-    <div class="progress-wrap"><div class="progress-bar" style="width:${pct}%;background:${color}"></div></div>
-    <div class="controls">
-      <button class="ctrl-btn" onclick="skip(-1)" ${stepIdx===0?'disabled':''}>⏮</button>
-      <button class="ctrl-btn play-btn" onclick="togglePlay()">${running?'⏸':'▶'}</button>
-      <button class="ctrl-btn" onclick="skip(1)" ${stepIdx===seq.length-1?'disabled':''}>⏭</button>
-    </div>`;
+  // Progress bar
+  const total=step.mins*60;
+  const pct=total>0?((total-secsLeft)/total)*100:100;
+  document.getElementById('progress-bar').style.width=pct+'%';
+  document.getElementById('progress-bar').style.background=color;
 
-  document.title=`${timeStr} — ${label} · Focus`;
+  // Controls
+  document.getElementById('controls').innerHTML=`
+    <button class="ctrl-btn" onclick="skip(-1)" ${stepIdx===0?'disabled':''}>⏮</button>
+    <button class="ctrl-btn play-btn" onclick="togglePlay()">${running?'⏸':'▶'}</button>
+    <button class="ctrl-btn" onclick="skip(1)" ${stepIdx===seq.length-1?'disabled':''}>⏭</button>`;
+
+  // Fit timer AFTER content updates
+  requestAnimationFrame(fitTimer);
+
+  document.title=`${timeStr} · ${step.type==='work'?'Focus':'Break'}`;
 }
 
 // ── CONTROLS ───────────────────────────────────────────────────────────
@@ -475,11 +522,10 @@ function startTick(){
       const isWork=seq[stepIdx]?.type==='work';
       render();
       if(isWork){
-        // slight delay so chip re-renders with tick first
         setTimeout(()=>{
-          const chipEl=document.getElementById(`chip-${stepIdx}`);
-          if(chipEl) fireConfetti(chipEl);
-        }, 80);
+          const dotEl=document.getElementById(`dot-${stepIdx}`);
+          if(dotEl) fireConfetti(dotEl);
+        }, 100);
       }
       const next=stepIdx+1;
       if(next>=seq.length){ finished=true; setTimeout(()=>render(),1000); }
@@ -499,7 +545,9 @@ function goTo(i){
 function skip(dir){ goTo(stepIdx+dir); }
 function restart(){
   stopTick();running=false;finished=false;
-  stepIdx=0;secsLeft=workMins[0]*60;completedSet=new Set();render();
+  stepIdx=0;secsLeft=workMins[0]*60;completedSet=new Set();
+  document.getElementById('session-dots').style.display='flex';
+  render();
 }
 
 // ── THEME PANEL ────────────────────────────────────────────────────────
@@ -509,12 +557,9 @@ document.getElementById('btn-bg').addEventListener('click',()=>{
   showPanel(`<div class="panel-handle"></div><div class="panel-title">Background</div><div class="bg-grid">${swatches}</div><button class="text-btn" style="width:100%" onclick="closePanel()">Done</button>`,
     isDark?'#1e2530':'#f8f2e8', isDark?'rgba(238,228,210,0.9)':'rgba(40,28,16,0.85)');
 });
-
 function setTheme(id){
   themeId=id; render();
-  document.querySelectorAll('.bg-swatch').forEach(el=>{
-    el.classList.toggle('sel',el.getAttribute('onclick').includes(`'${id}'`));
-  });
+  document.querySelectorAll('.bg-swatch').forEach(el=>el.classList.toggle('sel',el.getAttribute('onclick').includes(`'${id}'`)));
 }
 
 // ── EDIT PANEL ─────────────────────────────────────────────────────────
@@ -523,12 +568,11 @@ document.getElementById('btn-edit').addEventListener('click',()=>{
   let rows='';
   workMins.forEach((w,i)=>{
     rows+=`<div class="edit-row"><label>Work block ${i+1}</label><input class="edit-input" type="number" min="1" max="120" id="w${i}" value="${w}"><span class="edit-unit">min</span></div>`;
-    if(i<workMins.length-1) rows+=`<div class="edit-row" style="opacity:0.72"><label>Break after block ${i+1}</label><input class="edit-input" type="number" min="1" max="60" id="b${i}" value="${breakMins[i]||10}"><span class="edit-unit">min</span></div>`;
+    if(i<workMins.length-1) rows+=`<div class="edit-row" style="opacity:0.7"><label>Break after block ${i+1}</label><input class="edit-input" type="number" min="1" max="60" id="b${i}" value="${breakMins[i]||10}"><span class="edit-unit">min</span></div>`;
   });
   showPanel(`<div class="panel-handle"></div><div class="panel-title">Edit timers</div><p style="font-size:0.8rem;margin-bottom:1rem;opacity:0.5">Changes restart the session.</p>${rows}<button class="save-btn" onclick="saveEdit()">Save & restart</button>`,
     isDark?'#1e2530':'#f8f2e8', isDark?'rgba(238,228,210,0.9)':'rgba(40,28,16,0.85)');
 });
-
 function saveEdit(){
   workMins=workMins.map((_,i)=>Math.max(1,Math.min(120,parseInt(document.getElementById('w'+i)?.value)||5)));
   breakMins=breakMins.map((_,i)=>Math.max(1,Math.min(60,parseInt(document.getElementById('b'+i)?.value)||5)));
@@ -547,10 +591,17 @@ function showPanel(html,bg,textColor){
 }
 function closePanel(){ const el=document.getElementById('panel-overlay'); if(el)el.remove(); }
 
+// ── RESIZE / ORIENTATION ───────────────────────────────────────────────
+window.addEventListener('resize', ()=>requestAnimationFrame(fitTimer));
+window.addEventListener('orientationchange', ()=>setTimeout(()=>{ render(); }, 120));
+screen.orientation?.addEventListener('change', ()=>setTimeout(()=>{ render(); }, 120));
+
+// ── SERVICE WORKER ─────────────────────────────────────────────────────
 if('serviceWorker' in navigator){
-  window.addEventListener('load',()=>{ navigator.serviceWorker.register('sw.js').catch(()=>{}); });
+  window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
 }
 
+// ── INIT ───────────────────────────────────────────────────────────────
 render();
 </script>
 </body>
