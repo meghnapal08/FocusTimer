@@ -8,6 +8,7 @@
 <meta name="apple-mobile-web-app-title" content="Focus">
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon-192.png">
+<meta name="theme-color" id="theme-meta" content="#f5ede0">
 <title>Focus Timer</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@900&family=DM+Serif+Display&family=DM+Sans:wght@300;400;500&display=swap');
@@ -87,13 +88,7 @@ body { position: fixed; inset: 0; }
   line-height: 1; letter-spacing: -0.03em; color: var(--text);
   white-space: nowrap; font-size: 20vw;
 }
-.progress-wrap {
-  width: min(44vw, 300px); height: 2px;
-  background: var(--track); border-radius: 2px; overflow: hidden;
-  margin: clamp(0.5rem, 1.5vh, 1.2rem) auto;
-}
-.progress-bar { height: 100%; border-radius: 2px; transition: width 0.7s linear, background 0.4s; }
-.controls { display: flex; align-items: center; gap: clamp(16px,3vw,28px); }
+.controls { display: flex; align-items: center; gap: clamp(16px,3vw,28px); margin-top: clamp(1.5rem, 5vh, 3.5rem); }
 .ctrl-btn {
   background: none; border: none; padding: 6px;
   color: var(--text); opacity: 0.45;
@@ -262,7 +257,6 @@ body { position: fixed; inset: 0; }
   <div class="timer-area" id="timer-area">
     <div class="phase-label" id="phase-label">FOCUS</div>
     <div class="timer" id="timer-display">50:00</div>
-    <div class="progress-wrap"><div class="progress-bar" id="progress-bar"></div></div>
     <div class="controls" id="controls"></div>
   </div>
 
@@ -277,20 +271,20 @@ body { position: fixed; inset: 0; }
 
 <script>
 const THEMES = [
-  { id:'sand',  cls:'t-sand',   dark:false, bg:'linear-gradient(135deg,#f5ede0,#e8d5b7)', lbl:'Sand'   },
-  { id:'sage',  cls:'t-sage',   dark:false, bg:'linear-gradient(135deg,#d4e8d0,#b8d4b2)', lbl:'Sage'   },
-  { id:'ocean', cls:'t-ocean',  dark:false, bg:'linear-gradient(135deg,#d0e8f4,#b0d4ec)', lbl:'Ocean'  },
-  { id:'rose',  cls:'t-rose',   dark:false, bg:'linear-gradient(135deg,#f4d0d8,#edb8c4)', lbl:'Rose'   },
-  { id:'slate', cls:'t-slate',  dark:true,  bg:'linear-gradient(135deg,#2c3e50,#34495e)', lbl:'Slate'  },
-  { id:'dusk',  cls:'t-dusk',   dark:false, bg:'linear-gradient(135deg,#e8d5f0,#d4b8e8)', lbl:'Dusk'   },
-  { id:'night', cls:'t-night',  dark:true,  bg:'linear-gradient(135deg,#1a1a2e,#0f3060)', lbl:'Night'  },
-  { id:'forest',cls:'t-forest', dark:true,  bg:'linear-gradient(135deg,#1a2e1a,#243024)', lbl:'Forest' },
-  { id:'black', cls:'t-black',  dark:true,  bg:'#000',                                    lbl:'Black'  },
-  { id:'ink',   cls:'t-ink',    dark:true,  bg:'linear-gradient(135deg,#0a0a0f,#111118)', lbl:'Ink'    },
-  { id:'terra', cls:'t-terra',  dark:true,  bg:'linear-gradient(135deg,#3d1c10,#5a2a18)', lbl:'Terra'  },
-  { id:'stone', cls:'t-stone',  dark:true,  bg:'linear-gradient(135deg,#2a2a28,#383835)', lbl:'Stone'  },
-  { id:'cream', cls:'t-cream',  dark:false, bg:'linear-gradient(135deg,#faf6ef,#f2ebe0)', lbl:'Cream'  },
-  { id:'mist',  cls:'t-mist',   dark:false, bg:'linear-gradient(135deg,#dde4ec,#c8d4e0)', lbl:'Mist'   },
+  { id:'sand',  cls:'t-sand',   dark:false, bg:'linear-gradient(135deg,#f5ede0,#e8d5b7)', lbl:'Sand',   tc:'#f0e0c8' },
+  { id:'sage',  cls:'t-sage',   dark:false, bg:'linear-gradient(135deg,#d4e8d0,#b8d4b2)', lbl:'Sage',   tc:'#c8dcc4' },
+  { id:'ocean', cls:'t-ocean',  dark:false, bg:'linear-gradient(135deg,#d0e8f4,#b0d4ec)', lbl:'Ocean',  tc:'#c4dced' },
+  { id:'rose',  cls:'t-rose',   dark:false, bg:'linear-gradient(135deg,#f4d0d8,#edb8c4)', lbl:'Rose',   tc:'#eebcc8' },
+  { id:'slate', cls:'t-slate',  dark:true,  bg:'linear-gradient(135deg,#2c3e50,#34495e)', lbl:'Slate',  tc:'#2c3e50' },
+  { id:'dusk',  cls:'t-dusk',   dark:false, bg:'linear-gradient(135deg,#e8d5f0,#d4b8e8)', lbl:'Dusk',   tc:'#e0ccf4' },
+  { id:'night', cls:'t-night',  dark:true,  bg:'linear-gradient(135deg,#1a1a2e,#0f3060)', lbl:'Night',  tc:'#16213e' },
+  { id:'forest',cls:'t-forest', dark:true,  bg:'linear-gradient(135deg,#1a2e1a,#243024)', lbl:'Forest', tc:'#1a2e1a' },
+  { id:'black', cls:'t-black',  dark:true,  bg:'#000',                                    lbl:'Black',  tc:'#000000' },
+  { id:'ink',   cls:'t-ink',    dark:true,  bg:'linear-gradient(135deg,#0a0a0f,#111118)', lbl:'Ink',    tc:'#0a0a0f' },
+  { id:'terra', cls:'t-terra',  dark:true,  bg:'linear-gradient(135deg,#3d1c10,#5a2a18)', lbl:'Terra',  tc:'#3d1c10' },
+  { id:'stone', cls:'t-stone',  dark:true,  bg:'linear-gradient(135deg,#2a2a28,#383835)', lbl:'Stone',  tc:'#2a2a28' },
+  { id:'cream', cls:'t-cream',  dark:false, bg:'linear-gradient(135deg,#faf6ef,#f2ebe0)', lbl:'Cream',  tc:'#f8f3eb' },
+  { id:'mist',  cls:'t-mist',   dark:false, bg:'linear-gradient(135deg,#dde4ec,#c8d4e0)', lbl:'Mist',   tc:'#d8e2ec' },
 ];
 
 let workMins=[ 50,40,30,20,10];
@@ -321,7 +315,7 @@ function fitTimer(){
   const dotStrip= mobile&&isLand ? 30 : 0;
 
   const availW=(window.innerWidth - dotStrip - 24)*0.97;
-  const availH=window.innerHeight*(isDesktop()?0.62:0.70);
+  const availH=window.innerHeight*(isDesktop()?0.62:0.84);
 
   el.style.whiteSpace='nowrap';
   let lo=12, hi=1200;
@@ -418,6 +412,7 @@ function render(){
   const theme=THEMES.find(t=>t.id===themeId);
   const app=document.getElementById('app');
   THEMES.forEach(t=>app.classList.remove(t.cls));
+  document.getElementById('theme-meta')?.setAttribute('content', theme.tc);
   app.classList.add(theme.cls);
   app.dataset.dark=theme.dark;
   const wc=theme.dark?'#ffa070':'#b05c30';
@@ -450,10 +445,6 @@ function render(){
   const m=Math.floor(secsLeft/60),s=secsLeft%60;
   const timeStr=`${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
   document.getElementById('timer-display').textContent=timeStr;
-
-  const total=step.mins*60, pct=total>0?((total-secsLeft)/total)*100:100;
-  const pb=document.getElementById('progress-bar');
-  pb.style.width=pct+'%'; pb.style.background=color;
 
   const IC = {
     prev:`<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h2v12H6zm3.5 6 8.5 6V6z"/></svg>`,
